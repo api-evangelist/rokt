@@ -1,0 +1,17 @@
+name: Rokt FinOps
+description: Financial operations guidance for teams integrating with Rokt APIs. Because Rokt charges on a performance basis, cost management centers on monitoring conversion events, offer engagement rates, and API call volumes rather than seat or request counts.
+url: https://www.rokt.com/products/product-overview
+cost_drivers:
+  - name: Engagement-based charges (Advertisers)
+    description: Advertisers pay per customer engagement or conversion driven through Rokt placements. Costs scale with campaign reach and conversion volume.
+  - name: Revenue share (Ecommerce Partners)
+    description: Ecommerce partners receive a revenue share for each customer who engages with a Rokt offer on their confirmation or transaction page.
+  - name: API overage risk
+    description: Exceeding negotiated API rate limits can cause request failures (HTTP 429). Unexpected traffic spikes should be handled with exponential back-off and retry logic to avoid degraded integration performance.
+recommendations:
+  - Monitor the X-mp-rate-limit-percentage-used response header and alert at 80% threshold.
+  - Cache OAuth 2.0 access tokens for the full 1-hour TTL to avoid unnecessary token-generation calls.
+  - Attribute conversion events accurately via the Event API to ensure billing reconciliation is correct.
+  - Review Query API (Reporting) data regularly to track campaign spend and revenue performance by account, campaign, and transaction segment.
+  - Negotiate API rate limit tiers as part of your commercial agreement if integration volumes are expected to be high.
+contact: https://www.rokt.com/contact/

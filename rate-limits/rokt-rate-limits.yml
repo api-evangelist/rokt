@@ -1,0 +1,17 @@
+name: Rokt API Rate Limits
+description: Rokt enforces rate limits across its APIs to ensure platform stability and fair usage. Specific numeric thresholds are not publicly documented and are communicated per account agreement.
+url: https://docs.rokt.com/developers/api-reference/overview/
+limits:
+  - api: All APIs
+    header: X-mp-rate-limit-percentage-used
+    description: Response header indicating the percentage of the rate limit consumed in the current window
+    http_status_on_exceeded: 429
+    notes: When the limit is exceeded the API returns HTTP 429 Too Many Requests. Monitor the X-mp-rate-limit-percentage-used header to adjust request cadence before hitting the limit.
+  - api: Query API (Reporting)
+    base_url: https://api.rokt.com
+    notes: Query API rate limits are account-specific. Contact your Rokt account manager for thresholds applicable to your account tier.
+authentication:
+  type: OAuth 2.0 Client Credentials
+  token_endpoint: https://api.rokt.com/auth/oauth2/token
+  token_ttl_seconds: 3600
+  credentials_source: One Platform (my.rokt.com)
