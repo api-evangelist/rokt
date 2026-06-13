@@ -1,0 +1,135 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "schema": "https://schema.org/",
+    "rokt": "https://docs.rokt.com/developers/api-reference/",
+    "name": "schema:name",
+    "description": "schema:description",
+    "url": "schema:url",
+    "provider": {
+      "@id": "schema:provider",
+      "@type": "schema:Organization"
+    },
+    "Organization": "schema:Organization",
+    "WebAPI": "schema:WebAPI",
+    "Product": "schema:Product",
+    "EntryPoint": "schema:EntryPoint",
+    "Action": "schema:Action",
+
+    "QueryAPI": {
+      "@id": "rokt:reporting/query-api",
+      "@type": "schema:WebAPI"
+    },
+    "EventAPI": {
+      "@id": "rokt:event-api",
+      "@type": "schema:WebAPI"
+    },
+    "CartAPI": {
+      "@id": "rokt:cart-api",
+      "@type": "schema:WebAPI"
+    },
+    "CustomAudienceAPI": {
+      "@id": "rokt:custom-audience",
+      "@type": "schema:WebAPI"
+    },
+    "DataDeletionAPI": {
+      "@id": "rokt:data-deletion",
+      "@type": "schema:WebAPI"
+    },
+    "NurtureUnsubscribeAPI": {
+      "@id": "rokt:nurture-unsubscribe",
+      "@type": "schema:WebAPI"
+    },
+    "PartnershipsAPI": {
+      "@id": "rokt:partnerships",
+      "@type": "schema:WebAPI"
+    },
+
+    "account": "rokt:account",
+    "campaign": "rokt:campaign",
+    "transaction": "rokt:transaction",
+    "conversion": "rokt:conversion",
+    "audience": "rokt:audience",
+    "placement": "rokt:placement",
+    "offer": "rokt:offer",
+    "impression": "rokt:impression",
+    "referral": "rokt:referral",
+    "acquisition": "rokt:acquisition",
+    "metric": "rokt:metric",
+    "dimension": "rokt:dimension",
+    "interval": "rokt:interval",
+    "startDate": "schema:startDate",
+    "endDate": "schema:endDate",
+    "currencyCode": "schema:priceCurrency",
+    "amount": "schema:price",
+    "confirmationRef": "rokt:confirmationRef",
+    "conversionType": "rokt:conversionType",
+    "clickId": "rokt:clickId",
+    "userIdentity": "rokt:userIdentity",
+    "deviceInfo": "rokt:deviceInfo",
+    "environment": "rokt:environment",
+    "accessToken": "rokt:accessToken",
+    "grantType": "rokt:grantType",
+    "roas": "rokt:roas",
+    "cpa": "rokt:cpa",
+    "cpr": "rokt:cpr"
+  },
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://www.rokt.com",
+      "name": "Rokt",
+      "description": "Rokt is an eCommerce technology platform that uses AI and machine learning to serve personalized non-endemic offers and ads during transaction moments.",
+      "url": "https://www.rokt.com"
+    },
+    {
+      "@type": "WebAPI",
+      "name": "Rokt Query API",
+      "description": "Comprehensive reporting API for querying account and campaign performance data with flexible filtering, metrics selection, and date range specification.",
+      "url": "https://docs.rokt.com/developers/api-reference/reporting/query-api/",
+      "provider": { "@id": "https://www.rokt.com" }
+    },
+    {
+      "@type": "WebAPI",
+      "name": "Rokt Event API",
+      "description": "Enables sending conversion data and client events to Rokt to close the attribution loop for campaign performance tracking.",
+      "url": "https://docs.rokt.com/developers/integration-guides/getting-started/advertisers/ads-events-api-integration/",
+      "provider": { "@id": "https://www.rokt.com" }
+    },
+    {
+      "@type": "WebAPI",
+      "name": "Rokt Cart API",
+      "description": "Supports integration of Rokt into ecommerce transaction flows, enabling placement of personalized offers during checkout.",
+      "url": "https://docs.rokt.com/developers/api-reference/overview/",
+      "provider": { "@id": "https://www.rokt.com" }
+    },
+    {
+      "@type": "WebAPI",
+      "name": "Rokt Custom Audience Import API",
+      "description": "Allows importing custom audience segments into Rokt for targeted offer delivery and campaign personalization.",
+      "url": "https://docs.rokt.com/developers/api-reference/overview/",
+      "provider": { "@id": "https://www.rokt.com" }
+    },
+    {
+      "@type": "WebAPI",
+      "name": "Rokt Data Deletion API",
+      "description": "Manages data removal requests within Rokt systems to support privacy compliance and data governance requirements.",
+      "url": "https://docs.rokt.com/developers/api-reference/overview/",
+      "provider": { "@id": "https://www.rokt.com" }
+    },
+    {
+      "@type": "WebAPI",
+      "name": "Rokt Nurture Unsubscribe API",
+      "description": "Handles unsubscribe management for Rokt nurture campaigns, enabling partners to honor customer opt-outs.",
+      "url": "https://docs.rokt.com/developers/api-reference/overview/",
+      "provider": { "@id": "https://www.rokt.com" }
+    },
+    {
+      "@type": "WebAPI",
+      "name": "Rokt Partnerships API",
+      "description": "Supports third-party integrations including mParticle for connecting Rokt with partner data platforms.",
+      "url": "https://docs.rokt.com/developers/api-reference/overview/",
+      "provider": { "@id": "https://www.rokt.com" }
+    }
+  ]
+}
