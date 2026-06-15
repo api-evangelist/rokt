@@ -1,10 +1,10 @@
 {
   "provider": "rokt",
   "url": "https://www.rokt.com/blog/",
-  "fetched": "2026-06-13",
+  "fetched": "2026-06-14T20:42:17Z",
   "posts": [
     {
-      "title": "Commerce Media's Next Phase Will Be Won at the Transaction Moment™",
+      "title": "Commerce Media's Next Phase Will Be Won at the Transaction Moment\u2122",
       "url": "https://www.rokt.com/blog/commerce-medias-next-phase-will-be-won-at-the-transaction-moment-tm",
       "date": "2026-06-09",
       "category": "Industry"
@@ -46,7 +46,7 @@
       "category": "Product"
     },
     {
-      "title": "Rokt Named In The 2026 Gartner® Market Guide For Retail And Commerce Media Networks",
+      "title": "Rokt Named In The 2026 Gartner\u00ae Market Guide For Retail And Commerce Media Networks",
       "url": "https://www.rokt.com/blog/rokt-named-in-the-2026-gartner-market-guide-for-retail-and-commerce-media-networks",
       "date": "2026-05-20",
       "category": "News & Partnerships"
@@ -93,5 +93,13 @@
       "date": "2026-04-22",
       "category": "Industry"
     }
-  ]
+  ],
+  "repo": "rokt",
+  "feeds": [
+    {
+      "source": "https://www.linkedin.com/company/rokt",
+      "error": "HTTPError"
+    }
+  ],
+  "post_count": 0
 }
