@@ -2,7 +2,7 @@ aid: rokt
 name: Rokt
 description: Rokt is an eCommerce technology platform that uses AI and machine learning to serve personalized non-endemic offers and ads during transaction moments. APIs cover ecommerce placement integrations, conversion event tracking, reporting and analytics, custom audience management, and data governance.
 type: Index
-image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
 url: https://raw.githubusercontent.com/api-evangelist/rokt/refs/heads/main/apis.yml
 created: '2026-06-13'
 modified: '2026-06-13'
