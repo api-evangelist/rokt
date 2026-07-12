@@ -96,6 +96,10 @@ apis:
       - type: Documentation
         url: https://docs.rokt.com/developers/api-reference/overview/
 common:
+  - type: VulnerabilityDisclosure
+    url: security/rokt-vulnerability-disclosure.yml
+  - type: DomainSecurity
+    url: security/rokt-domain-security.yml
   - type: Website
     url: https://www.rokt.com
   - type: Documentation
