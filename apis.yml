@@ -19,6 +19,14 @@ created: '2026-06-13'
 modified: '2026-06-13'
 specificationVersion: '0.23'
 tags:
+  - E-Commerce
+  - Advertising
+  - Transaction Moment
+  - Personalization
+  - Offers
+  - Analytics
+  - Reporting
+tags_raw:
   - eCommerce
   - Advertising
   - Transaction Moment
@@ -45,6 +53,10 @@ apis:
     humanURL: https://docs.rokt.com/developers/integration-guides/getting-started/advertisers/ads-events-api-integration/
     baseURL: https://api.rokt.com
     tags:
+      - Event
+      - Conversions
+      - Attribution
+    tags_raw:
       - Events
       - Conversions
       - Attribution
@@ -56,6 +68,10 @@ apis:
     humanURL: https://docs.rokt.com/developers/api-reference/overview/
     baseURL: https://api.rokt.com
     tags:
+      - E-Commerce
+      - Cart
+      - Placements
+    tags_raw:
       - eCommerce
       - Cart
       - Placements
@@ -100,6 +116,10 @@ apis:
     humanURL: https://docs.rokt.com/developers/api-reference/overview/
     baseURL: https://api.rokt.com
     tags:
+      - Partnerships
+      - Integration
+      - mParticle
+    tags_raw:
       - Partnerships
       - Integrations
       - mParticle
