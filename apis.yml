@@ -65,7 +65,7 @@ apis:
     baseURL: https://api.rokt.com
     tags:
       - Event
-      - Conversions
+      - Conversion
       - Attribution
     tags_raw:
       - Events
