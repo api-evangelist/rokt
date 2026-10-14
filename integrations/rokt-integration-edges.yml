@@ -1,5 +1,5 @@
 generated: '2026-10-12'
-method: none
+method: searched
 source:
 - https://zapier.com/apps/rokt/integrations
 - https://n8n.io/integrations/rokt/
@@ -7,10 +7,58 @@ source:
 - https://monid.ai/tools/rokt
 checked:
 - https://composio.dev/toolkits/rokt
+- https://docs.mparticle.com/integrations/rokt/audience/
+- https://hightouch.com/docs/destinations/rokt
 - https://monid.ai/tools/rokt
 - https://n8n.io/integrations/rokt/
 - https://zapier.com/apps/rokt/integrations
 summary: null
 marketplace_apps: []
-edges: []
+edges:
+- partner_name: mParticle
+  partner: mparticle
+  partner_match: aggregator
+  marketplace: coverage
+  channel: partner-built
+  direction: partner-built
+  type: coverage
+  relationship: connector-coverage
+  evidence: https://docs.mparticle.com/integrations/rokt/audience/
+  coverage_role:
+  - destination
+  cdp_signals:
+    destination:
+      catalog_entries:
+      - rokt
+      integration_types:
+      - audience
+      - event
+      - partners
+  detected_by: sweep-cdp.py
+  first_seen: '2026-10-14'
+- partner_name: Hightouch
+  partner: hightouch
+  partner_match: aggregator
+  marketplace: coverage
+  channel: partner-built
+  direction: partner-built
+  type: coverage
+  relationship: connector-coverage
+  evidence: https://hightouch.com/docs/destinations/rokt
+  coverage_role:
+  - destination
+  cdp_signals:
+    destination:
+      catalog_entries:
+      - rokt
+      status: released
+      sync_types:
+      - Event
+      - Segment
+      sync_modes:
+      - add
+      - insert
+      - remove
+  detected_by: sweep-cdp.py
+  first_seen: '2026-10-14'
 templates: []
