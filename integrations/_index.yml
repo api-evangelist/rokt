@@ -40,3 +40,16 @@
   relationship: platform-app
   status: not-a-workflow
   arazzo: null
+- slug: rokt-stripe-own
+  label: Stripe (own)
+  partner: stripe
+  partner_name: Stripe (own)
+  category: data_and_analytics
+  type: marketplace
+  marketplace: own
+  channel: partner-built
+  evidence: https://marketplace.stripe.com/apps/rokt-real-time-conversions-api
+  source: edge
+  relationship: platform-app
+  status: not-a-workflow
+  arazzo: null

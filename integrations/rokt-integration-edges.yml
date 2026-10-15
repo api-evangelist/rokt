@@ -13,6 +13,7 @@ checked:
 - https://n8n.io/integrations/rokt/
 - https://zapier.com/apps/rokt/integrations
 - olo/integrations/olo-integration-edges.yml
+- stripe/integrations/stripe-integration-edges.yml
 summary: null
 marketplace_apps: []
 edges:
@@ -79,4 +80,21 @@ edges:
   detected: '2026-10-14'
   detected_by: mirror-platform-listings.py
   category: Marketing
+- partner_name: Stripe (own)
+  partner: stripe
+  partner_match: mirror
+  mirror_match: domain
+  type: marketplace
+  relationship: platform-app
+  direction: third-party
+  channel: partner-built
+  marketplace: own
+  evidence: https://marketplace.stripe.com/apps/rokt-real-time-conversions-api
+  mirror_of: stripe/integrations/stripe-integration-edges.yml
+  apps:
+  - Rokt
+  listing_count: 1
+  detected: '2026-10-15'
+  detected_by: mirror-platform-listings.py
+  category: data_and_analytics
 templates: []
