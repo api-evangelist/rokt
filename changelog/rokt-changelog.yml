@@ -1,0 +1,59 @@
+generated: '2026-10-21'
+method: searched
+source: https://docs.rokt.com/developer-reference/sdks/release-notes/
+scheme: per-SDK semantic versions (Android, iOS, Flutter, React Native, Cordova, MAUI, Web); no API-level changelog
+  found
+entries:
+- version: android 6.0.1
+  date: null
+  breaking: false
+  highlights:
+  - Drop session on 401 (token validation) (#1120)
+  url: https://docs.rokt.com/developer-reference/sdks/release-notes/android/
+- version: android 5.1.0
+  date: null
+  breaking: false
+  highlights:
+  - CNAME support (#993)
+  - Prevent duplicate layout event callbacks (#989)
+- version: ios 5.3.0
+  date: null
+  breaking: false
+  highlights:
+  - Add Stripe Payment Retry Logic (#204)
+  - Store font cache in Caches directory instead of Documents (#235)
+  url: https://docs.rokt.com/developer-reference/sdks/release-notes/ios/
+- version: flutter 4.10.0
+  date: null
+  breaking: false
+  highlights:
+  - Real time events
+  - Support new response action type ExternalPaymentTrigger
+  - Sessions are now retained between app restarts
+  url: https://docs.rokt.com/developer-reference/sdks/release-notes/flutter/
+- version: web 2.6021.0
+  date: '2025-05-30'
+  breaking: false
+  highlights:
+  - Expand test coverage for enhanced reliability.
+  url: https://docs.rokt.com/developer-reference/sdks/release-notes/web/
+- version: web 2.5998.0
+  date: '2025-05-23'
+  breaking: false
+  highlights:
+  - Add capabilities to support more integration scenarios.
+- version: cordova 4.6.1
+  date: '2024-10-31'
+  breaking: false
+  highlights:
+  - Bug fixes and enhancement.
+  url: https://docs.rokt.com/developer-reference/sdks/release-notes/cordova/
+note: Android, iOS and Flutter release-note entries are undated on the page. Docs lag the registries (e.g. Android
+  docs 6.0.1 vs Maven 6.3.1, Flutter docs 4.10.0 vs pub.dev 5.1.2, Cordova docs 4.6.1 vs npm 4.7.3).
+current_versions:
+  android: 6.0.1 (docs) / 6.3.1 (Maven Central)
+  ios: 5.3.0
+  flutter: 4.10.0
+  cordova: 4.6.1 (legacy)
+  web: 2.6021.0
+current_version: null

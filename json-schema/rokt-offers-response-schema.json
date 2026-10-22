@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/rokt/main/json-schema/rokt-offers-response-schema.json",
+  "title": "OffersResponse",
+  "x-generated": "2026-10-21",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/rokt-session-api-openapi.yml#/components/schemas/OffersResponse",
+  "type": "object",
+  "required": [
+    "session_id",
+    "page_instance_guid",
+    "session_token"
+  ],
+  "properties": {
+    "session_id": {
+      "type": "string",
+      "description": "Identifies this session. Send it as each event's `session_id` on the\nevents call.\n"
+    },
+    "page_instance_guid": {
+      "type": "string",
+      "description": "Identifies this page view. Send it as `data.page_instance_guid` on\nevery event.\n"
+    },
+    "session_token": {
+      "$ref": "#/$defs/SessionToken"
+    },
+    "plugins": {
+      "type": "array",
+      "description": "The offers to render. **An empty array is a valid, successful\nno-fill** — render nothing and continue.\n",
+      "items": {
+        "$ref": "#/$defs/Plugin"
+      }
+    }
+  },
+  "$defs": {
+    "Advertiser": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The advertiser's legal entity name."
+        },
+        "brand": {
+          "type": "string",
+          "description": "The advertiser's brand name."
+        }
+      }
+    },
+    "Creative": {
+      "type": "object",
+      "description": "The renderable content of the offer.",
+      "properties": {
+        "instance_guid": {
+          "type": "string",
+          "description": "Use as the event `parent_id` when reporting an impression or view of\nthis creative.\n"
+        },
+        "token": {
+          "type": "string",
+          "description": "Event token for this creative."
+        },
+        "referral_creative_id": {
+          "type": "string"
+        },
+        "advertiser": {
+          "$ref": "#/$defs/Advertiser"
+        },
+        "copy": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Renderable copy, keyed by field name. Commonly used keys:\n\n- `creative.title` — headline\n- `creative.image.src` — image URL\n- `creative.disclaimer` — disclaimer text\n- `creative.termsAndConditions.link` — terms link\n- `creative.privacyPolicy.link` — privacy policy link\n\nTreat this as an open map: the keys available depend on the campaign,\nand reading an absent key should degrade gracefully rather than fail.\n"
+        },
+        "response_options_map": {
+          "type": "object",
+          "description": "The actions a customer can take, keyed by role — typically `positive`\nand `negative`.\n",
+          "additionalProperties": {
+            "$ref": "#/$defs/ResponseOption"
+          }
+        }
+      }
+    },
+    "Offer": {
+      "type": "object",
+      "properties": {
+        "campaign_id": {
+          "type": "string"
+        },
+        "account_id": {
+          "type": "string"
+        },
+        "creative": {
+          "$ref": "#/$defs/Creative"
+        }
+      }
+    },
+    "Plugin": {
+      "type": "object",
+      "properties": {
+        "plugin": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "config": {
+              "type": "object",
+              "properties": {
+                "instance_guid": {
+                  "type": "string"
+                },
+                "slots": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/Slot"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "fonts": {
+          "type": "array",
+          "description": "Fonts referenced by the offer, when the account uses them.",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "ResponseOption": {
+      "type": "object",
+      "description": "One action a customer can take on an offer.",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "instance_guid": {
+          "type": "string",
+          "description": "Use as the event `parent_id` when reporting that the customer chose\nthis option.\n"
+        },
+        "token": {
+          "type": "string",
+          "description": "Event token for this response option."
+        },
+        "action": {
+          "type": "string",
+          "description": "What the option does, e.g. `Url` to navigate, `CaptureOnly` to record\nthe choice without navigating.\n"
+        },
+        "short_label": {
+          "type": "string"
+        },
+        "long_label": {
+          "type": "string"
+        },
+        "is_positive": {
+          "type": "boolean",
+          "description": "Whether this option represents acceptance of the offer."
+        },
+        "url": {
+          "type": "string",
+          "description": "Destination when `action` is `Url`."
+        },
+        "url_behavior": {
+          "type": "string",
+          "description": "How to open `url`, e.g. `newTab`."
+        },
+        "signal_type": {
+          "type": "string"
+        }
+      }
+    },
+    "SessionToken": {
+      "type": "object",
+      "description": "A refreshed reference to the session. Read it back from every response and\nuse the latest value on subsequent calls.\n",
+      "properties": {
+        "token": {
+          "type": "string"
+        }
+      }
+    },
+    "Slot": {
+      "type": "object",
+      "description": "A position in the layout, holding at most one offer.",
+      "properties": {
+        "instance_guid": {
+          "type": "string",
+          "description": "Use as an event `parent_id` when reporting on the slot."
+        },
+        "token": {
+          "type": "string",
+          "description": "Event token for this slot."
+        },
+        "offer": {
+          "$ref": "#/$defs/Offer"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,40 @@
+generated: '2026-10-21'
+method: searched
+source:
+- https://docs.rokt.com/trust-center/
+- https://docs.rokt.com/developer-reference/apis/partnerships-api/authentication/
+- https://docs.rokt.com/developer-reference/apis/reporting-apis/query-api/
+standards:
+- id: oauth2
+  conforms: true
+  evidence: 'Partnerships API: "Standard OAuth2 client-credentials response" from https://auth.rokt.com/api/v1/oauth/token; Query API: "The Rokt
+    Query API leverages the OAuth 2.0 approach to client integration" (POST https://api.rokt.com/auth/oauth2/token, grant_type=client_credentials).'
+- id: iso-27001
+  conforms: true
+  evidence: 'Trust Center: "Rokt products and services are ISO certified through Lloyd’s Register and independently audited annually to maintain
+    certification." (https://docs.rokt.com/trust-center/)'
+- id: soc2
+  conforms: true
+  evidence: 'Trust Center: program "independently assessed on a regular basis against industry standards and includes ISO/IEC 27001, AICPA SOC
+    2, and SOC 1."'
+- id: soc1
+  conforms: true
+  evidence: 'Trust Center: "...includes ISO/IEC 27001, AICPA SOC 2, and SOC 1."'
+- id: idempotency
+  conforms: partial
+  evidence: Idempotency-Key (UUID, ~24h) required on Partnerships API managed-account writes only; see conventions/rokt-conventions.yml.
+- id: rfc9457
+  conforms: false
+  evidence: Errors use a custom {status,error,message,request_id,data} JSON envelope, not application/problem+json.
+- id: openapi-3.0
+  conforms: true
+  evidence: the document declares 3.0.0
+- id: openapi-3.0
+  conforms: true
+  evidence: the document declares 3.0.3
+- id: pagination
+  conforms: true
+  evidence: list operations take cursor, limit
+- id: ratelimit-headers
+  conforms: true
+  evidence: responses declare Retry-After

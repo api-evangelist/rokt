@@ -1,15 +1,19 @@
-# Provenance stamped 2026-10-07 (roadmap#943): written by an API Evangelist sweep (undated — the file carries no date and git cannot supply one), not
-# harvested from the provider. `method: generated` so the economics campaign may replace it with a
-# dated, verbatim transcription; every figure below is unverified until it does.
-method: generated
-name: Rokt Plans and Pricing
-description: Rokt uses performance-based pricing models — advertisers and ecommerce partners pay based on engagement and conversions rather than flat-rate subscription tiers. Specific commercial terms are negotiated directly with Rokt account managers.
-url: https://www.rokt.com/products/product-overview
-pricing_model: performance_based
-notes: >
-  Rokt does not publish a public self-serve pricing page. Access to APIs and
-  the platform requires an enterprise agreement or partnership arrangement with
-  Rokt. Pricing is outcome-driven: ecommerce partners earn revenue when
-  customers engage with non-endemic offers; advertisers pay per engagement or
-  conversion. Rate limits and API quotas are defined per contract.
-contact: https://www.rokt.com/contact/
+name: Rokt pricing
+generated: '2026-10-21'
+method: none
+source: https://docs.rokt.com/platform-guides/rokt-ads/account/billing/
+audience: business-product
+pricing_basis: negotiated
+published: false
+delivery:
+  mode: managed
+plan_count: 0
+plans: []
+checked:
+- https://docs.rokt.com/platform-guides/rokt-ads/account/billing/
+- https://docs.rokt.com/platform-guides/rokt-catalog/catalog-ads/billing/
+- https://www.rokt.com
+note: 'Rokt publishes no price list or plan tiers. The Rokt Ads billing Q&A describes post-paid monthly invoicing
+  ("Rokt offers two payment methods: credit card or credit term, both of which are post-paid. The default for a
+  new account is a 30-day credit term.") with commercial terms handled by the account manager. Partnerships API
+  credentials are issued by Rokt during onboarding (not self-serve).'

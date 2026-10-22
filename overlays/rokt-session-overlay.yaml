@@ -1,0 +1,21 @@
+overlay: 1.0.0
+info:
+  title: Rokt Session API - API Evangelist overlay
+  version: 1.0.0
+extends: openapi/rokt-session-api-openapi.yml
+actions:
+- target: $.info
+  update:
+    x-api-evangelist:
+      provider: rokt
+      profiled: '2026-10-21'
+      llms: llms/rokt-llms.txt
+      mcp: mcp/rokt-mcp.yml
+- target: $.paths['/v2/sessions/offers'].post
+  update:
+    x-mcp-tool: rokt_session_select_offers
+    x-agent-safety: write
+- target: $.paths['/v2/sessions/events'].post
+  update:
+    x-mcp-tool: rokt_session_record_events
+    x-agent-safety: write

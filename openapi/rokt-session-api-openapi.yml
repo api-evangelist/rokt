@@ -1,0 +1,979 @@
+openapi: 3.0.0
+info:
+  title: Session API
+  version: 2.0.0
+  x-logo:
+    url: https://rokt.com/logo.png
+  description: "# Introduction\n\nThe Rokt Session API is a server-to-server integration for requesting offers\nand reporting the events that\
+    \ follow. It replaces client-side placement of\nthe Rokt SDK for partners who prefer to render offers themselves.\n\nA Session API integration\
+    \ has two calls:\n\n1. **Offers** — send transaction and customer context, receive the offer to render.\n2. **Events** — report what happened\
+    \ to that offer: impressions, viewability,\n   customer responses, and dismissals.\n\nThe events call is not optional. Rokt bills and optimizes\
+    \ on the events you\nreport, so an integration that renders offers without reporting impressions\nand responses will under-report performance\
+    \ and earn less.\n\nFor an end-to-end walkthrough, see\n[Session API integration (S2S)](/integration-guides/ecommerce/server-to-server/session-api-integration).\n\
+    \n# Authentication\n\nEvery request carries two things:\n\n- `Authorization: Basic base64(rpub:rsec)` — your public and secret API keys,\n\
+    \  joined with a colon and base64-encoded.\n- `rokt-account-id` — your Rokt account ID.\n\nYour Rokt account team provides all three values.\
+    \ Treat the secret key as a\ncredential: keep it server-side and never ship it to a browser or mobile app.\n\n# Environments\n\nThere is no\
+    \ separate sandbox host. To validate an integration before going\nlive, send `rokt-test-session: true` on the production endpoint. Test sessions\n\
+    are tagged and excluded from production reporting.\n\nThe header affects reporting only — it does not force an offer to serve. For\ndeterministic\
+    \ end-to-end testing, your account team can configure a staging\npage with dedicated test campaigns. Remove the header to go live.\n\n# Rate\
+    \ limiting\n\nRequests may be throttled. A throttled request returns `429` and is safe to\nretry, but do not retry automatically in a tight\
+    \ loop — back off, and contact\nyour Rokt representative if `429`s persist.\n"
+servers:
+- url: https://api.rokt.com
+  description: Production
+security:
+- BasicAuth: []
+tags:
+- name: Offers
+  description: 'Request the offers to render for a transaction.
+
+
+    Called once per page view, with whatever customer and transaction context
+
+    you can supply — the richer the context, the better the offer. The response
+
+    carries the session and page identifiers you echo back when reporting
+
+    events, so keep them for the lifetime of the transaction.
+
+    '
+- name: Events
+  description: 'Report what happened to the offers you rendered.
+
+
+    Rokt bills and optimizes on these events, so an integration that renders
+
+    offers without reporting impressions and responses will under-report its
+
+    own performance and earn less. Events are sent in batches and can partially
+
+    succeed, so check the per-event results rather than the status code alone.
+
+    '
+paths:
+  /v2/sessions/offers:
+    post:
+      tags:
+      - Offers
+      operationId: selectOffers
+      summary: Request offers
+      description: 'Returns the offers to render for a transaction, along with the session
+
+        identifiers you will echo back on the events call.
+
+
+        **An empty `plugins` array is a normal, successful outcome.** When there
+
+        is no relevant offer for a customer, Rokt returns `200` with `plugins: []`.
+
+        Render nothing and continue your page — this represents a real share of
+
+        production traffic and is not an error.
+
+
+        ## Caching
+
+
+        To maximize revenue, request offers earlier in the customer''s journey than
+
+        the point where you intend to render them, and cache the response for fast
+
+        retrieval within the same transaction. Cache against a combination of
+
+        transaction ID, customer ID, and device type. If the customer context
+
+        changes — a device switch, for example — request again with the updated
+
+        attributes so the offer stays relevant.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/AccountId'
+      - $ref: '#/components/parameters/PlatformType'
+      - $ref: '#/components/parameters/TestSession'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OffersRequest'
+            example:
+              channel:
+                type: s2s
+              page:
+                page_identifier: checkout
+              customer:
+                email: jane.doe@example.com
+                first_name: Jane
+                last_name: Doe
+                postal_code: '10001'
+                language: en
+              transaction:
+                transaction_value: 19.99
+                currency: USD
+                confirmation_ref: ORDER-000123
+              payment:
+                type: card
+              device:
+                user_agent: YourApp/1.0 (mobile)
+              attributes:
+                your_custom_attribute: value
+      responses:
+        '200':
+          description: 'Offers returned. `plugins` may be empty — see the no-fill example.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OffersResponse'
+              examples:
+                offer:
+                  summary: An offer to render
+                  value:
+                    session_id: b1fb003c-e904-4083-b7b9-03cde555a7a1
+                    page_instance_guid: 018f2a1b-0000-7abc-8def-page00000001
+                    session_token:
+                      token: <session_token>
+                    plugins:
+                    - plugin:
+                        id: '3353172846080032866'
+                        name: dcui
+                        config:
+                          instance_guid: ce5158a9-dc59-4a97-9006-a299901e4587
+                          slots:
+                          - instance_guid: 8f492d28-83fb-4813-877e-26e752ea9474
+                            token: <event-token>
+                            offer:
+                              campaign_id: '2749386944931233793'
+                              creative:
+                                instance_guid: c9f37d78-731d-4a0e-b8bc-712bd8c46cc1
+                                token: <event-token>
+                                advertiser:
+                                  name: Example Advertiser Inc.
+                                  brand: Example Brand
+                                copy:
+                                  creative.title: Get 20% off your next order
+                                  creative.image.src: https://example.com/creative/hero.png
+                                  creative.disclaimer: New customers only. Terms apply.
+                                  creative.termsAndConditions.link: https://example.com/terms
+                                  creative.privacyPolicy.link: https://example.com/privacy
+                                response_options_map:
+                                  positive:
+                                    instance_guid: 1d47ded1-b483-44e6-abf8-1d1d5faa82bc
+                                    short_label: 'Yes'
+                                    long_label: Yes please
+                                    is_positive: true
+                                    action: Url
+                                    url: https://example.com/redeem
+                                    url_behavior: newTab
+                                    token: <event-token>
+                                  negative:
+                                    instance_guid: 24de5c75-ff04-41c5-b3f7-7d2ee129ecc6
+                                    short_label: No thanks
+                                    long_label: No thanks
+                                    is_positive: false
+                                    action: CaptureOnly
+                                    token: <event-token>
+                no_fill:
+                  summary: No relevant offer (render nothing)
+                  value:
+                    session_id: b1fb003c-e904-4083-b7b9-03cde555a7a1
+                    page_instance_guid: 018f2a1b-0000-7abc-8def-page00000001
+                    session_token:
+                      token: <session_token>
+                    plugins: []
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /v2/sessions/events:
+    post:
+      tags:
+      - Events
+      operationId: recordEvents
+      summary: Report events
+      description: 'Reports what happened to the offers returned by the offers call:
+
+        impressions, viewability, customer responses, and dismissals.
+
+
+        Each event points at the element it describes using `data.parent_id` and
+
+        `data.token`, both taken verbatim from the offers response. Send
+
+        `single_session: true` and set each event''s `session_id` to the
+
+        `session_id` you received.
+
+
+        Events are accepted in batches, and a batch can partially succeed — see
+
+        the `202` response.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/AccountId'
+      - $ref: '#/components/parameters/TestSession'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventsRequest'
+            examples:
+              impression:
+                summary: Impression — the element rendered and is visible
+                description: 'Send one per rendered element, using that element''s own
+
+                  `instance_guid` as `parent_id` and its own `token`.
+
+                  '
+                value:
+                  channel:
+                    type: s2s
+                  single_session: true
+                  events:
+                  - event_type: impression
+                    instance_id: 018f1234-5678-7abc-8def-0123456789ab
+                    session_id: 018f2a1b-2222-7abc-8def-session00001
+                    timestamp: 1751234567000
+                    data:
+                      parent_id: 018f2a1b-3333-7abc-8def-creative001
+                      page_instance_guid: 018f2a1b-0000-7abc-8def-page00000001
+                      token: <event-token>
+                      capture_method: ClientProvided
+              viewed:
+                summary: Viewed — the creative met the viewability threshold
+                description: 'Raised once the creative has been at least 50% visible for one
+
+                  continuous second. `parent_id` is the creative''s
+
+                  `instance_guid`.
+
+                  '
+                value:
+                  channel:
+                    type: s2s
+                  single_session: true
+                  events:
+                  - event_type: viewed
+                    instance_id: 018f1234-5678-7abc-8def-0123456789ac
+                    session_id: 018f2a1b-2222-7abc-8def-session00001
+                    timestamp: 1751234568000
+                    data:
+                      parent_id: 018f2a1b-3333-7abc-8def-creative001
+                      page_instance_guid: 018f2a1b-0000-7abc-8def-page00000001
+                      token: <event-token>
+              signal_response:
+                summary: Response — the customer engaged with a response option
+                description: '`parent_id` is the `instance_guid` of the response option the
+
+                  customer chose, taken from `response_options_map`, and `token`
+
+                  is that option''s token — not the creative''s.
+
+                  '
+                value:
+                  channel:
+                    type: s2s
+                  single_session: true
+                  events:
+                  - event_type: signal_response
+                    instance_id: 018f1234-5678-7abc-8def-0123456789ad
+                    session_id: 018f2a1b-2222-7abc-8def-session00001
+                    timestamp: 1751234572000
+                    data:
+                      parent_id: 018f2a1b-4444-7abc-8def-responseoption01
+                      page_instance_guid: 018f2a1b-0000-7abc-8def-page00000001
+                      token: <event-token>
+              dismissal:
+                summary: Dismissal — the customer closed the offer without responding
+                description: 'Sent instead of a `signal_response` when the customer dismissed
+
+                  the offer rather than choosing an option. `parent_id` is the
+
+                  dismissed element''s `instance_guid`.
+
+                  '
+                value:
+                  channel:
+                    type: s2s
+                  single_session: true
+                  events:
+                  - event_type: dismissal
+                    instance_id: 018f1234-5678-7abc-8def-0123456789ae
+                    session_id: 018f2a1b-2222-7abc-8def-session00001
+                    timestamp: 1751234574000
+                    data:
+                      parent_id: 018f2a1b-3333-7abc-8def-creative001
+                      page_instance_guid: 018f2a1b-0000-7abc-8def-page00000001
+                      token: <event-token>
+              batch:
+                summary: A batch of events
+                description: 'Events can be batched. The batch is reported on per event, so a
+
+                  partial failure still returns `202` — check `errors` by index.
+
+                  '
+                value:
+                  channel:
+                    type: s2s
+                  single_session: true
+                  events:
+                  - event_type: impression
+                    instance_id: 018f1234-5678-7abc-8def-0123456789ab
+                    session_id: 018f2a1b-2222-7abc-8def-session00001
+                    timestamp: 1751234567000
+                    data:
+                      parent_id: 018f2a1b-3333-7abc-8def-creative001
+                      page_instance_guid: 018f2a1b-0000-7abc-8def-page00000001
+                      token: <event-token>
+                  - event_type: viewed
+                    instance_id: 018f1234-5678-7abc-8def-0123456789ac
+                    session_id: 018f2a1b-2222-7abc-8def-session00001
+                    timestamp: 1751234568000
+                    data:
+                      parent_id: 018f2a1b-3333-7abc-8def-creative001
+                      page_instance_guid: 018f2a1b-0000-7abc-8def-page00000001
+                      token: <event-token>
+                  - event_type: signal_response
+                    instance_id: 018f1234-5678-7abc-8def-0123456789ad
+                    session_id: 018f2a1b-2222-7abc-8def-session00001
+                    timestamp: 1751234572000
+                    data:
+                      parent_id: 018f2a1b-4444-7abc-8def-responseoption01
+                      page_instance_guid: 018f2a1b-0000-7abc-8def-page00000001
+                      token: <event-token>
+      responses:
+        '202':
+          description: 'Batch accepted. A `202` does not mean every event succeeded — check
+
+            `errors`, which reports rejected events by their `index` in the
+
+            request array. Accepted events appear in `event_ids`.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventsResponse'
+              examples:
+                all_accepted:
+                  summary: Every event accepted
+                  value:
+                    session_token:
+                      token: <session_token>
+                    event_ids:
+                    - 018f9c40-1a2b-7abc-8def-eventimpression
+                    - 018f9c40-1a2b-7abc-8def-eventresponse01
+                    errors: []
+                    warnings: []
+                partial_failure:
+                  summary: One event rejected, the rest accepted
+                  value:
+                    session_token:
+                      token: <session_token>
+                    event_ids:
+                    - 018f9c40-1a2b-7abc-8def-eventimpression
+                    errors:
+                    - index: 1
+                      code: invalid_token
+                      message: token does not match the element identified by parent_id
+                    warnings: []
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+      description: '`Basic base64(rpub:rsec)` — your Rokt public and secret API keys, joined
+
+        with a colon and base64-encoded. Provided by your Rokt account team.
+
+        '
+  parameters:
+    AccountId:
+      name: rokt-account-id
+      in: header
+      required: true
+      description: Your Rokt account ID. Required on every call.
+      schema:
+        type: string
+      example: '2748881613004506238'
+    PlatformType:
+      name: rokt-platform-type
+      in: header
+      required: false
+      description: 'The platform the offers are being requested for. Case-insensitive;
+
+        defaults to `Web`.
+
+
+        Server-to-server traffic classifies as **Web** by default. If your Rokt
+
+        pages are configured for a native platform, set this header to match —
+
+        otherwise page detection will not match your native-configured pages and
+
+        no offers will be returned. Web-configured pages need no header.
+
+        '
+      schema:
+        type: string
+        enum:
+        - iOS
+        - Android
+        - Web
+        - WebDesktop
+        - WebMobile
+      example: Web
+    TestSession:
+      name: rokt-test-session
+      in: header
+      required: false
+      description: 'Marks the session as a test. Test sessions are tagged and excluded from
+
+        production reporting. Reporting only — it does not force an offer to
+
+        serve. Remove to go live.
+
+        '
+      schema:
+        type: boolean
+      example: true
+  responses:
+    BadRequest:
+      description: 'The request could not be processed — malformed JSON, or a body that
+
+        failed validation. Validation failures carry a `details` array naming
+
+        each offending field.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+          example:
+            error: validation_failed
+            message: request validation failed
+            details:
+            - field: channel.type
+              code: required
+              message: channel.type is required
+    Unauthorized:
+      description: 'Authentication failed — a missing, malformed, or rejected `Authorization`
+
+        header, or credentials that are not valid for this account. Check the
+
+        credentials with your Rokt account team rather than retrying.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: unauthenticated
+            message: request could not be authenticated
+    RateLimited:
+      description: 'Throttled. The request was not processed and is safe to retry, but back
+
+        off rather than retrying immediately. The body may be empty, so do not
+
+        assume a `429` is parseable as JSON. Contact your Rokt representative if
+
+        `429`s persist.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: rate_limited
+            message: request was throttled, retry with backoff
+    ServerError:
+      description: 'Unexpected error on the Rokt side. Retry after a brief delay of one to
+
+        two seconds. If the problem persists, contact support@rokt.com.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: internal_error
+            message: internal service error
+  schemas:
+    Error:
+      type: object
+      required:
+      - error
+      - message
+      properties:
+        error:
+          type: string
+          description: 'Stable, machine-readable error code. Branch on this rather than on
+
+            `message`.
+
+            '
+        message:
+          type: string
+          description: 'Human-readable description. Free text that may change without notice.
+
+            '
+    ValidationError:
+      type: object
+      required:
+      - error
+      - message
+      properties:
+        error:
+          type: string
+          example: validation_failed
+        message:
+          type: string
+        details:
+          type: array
+          description: One entry per field that failed validation.
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: Path to the offending field, e.g. `events[0].instance_id`.
+              code:
+                type: string
+              message:
+                type: string
+    Channel:
+      type: object
+      required:
+      - type
+      description: Identifies the integration type. Server-to-server callers send `s2s`.
+      properties:
+        type:
+          type: string
+          enum:
+          - s2s
+          example: s2s
+    SessionToken:
+      type: object
+      description: 'A refreshed reference to the session. Read it back from every response and
+
+        use the latest value on subsequent calls.
+
+        '
+      properties:
+        token:
+          type: string
+    OffersRequest:
+      type: object
+      required:
+      - channel
+      - page
+      properties:
+        channel:
+          $ref: '#/components/schemas/Channel'
+        page:
+          $ref: '#/components/schemas/Page'
+        customer:
+          $ref: '#/components/schemas/Customer'
+        transaction:
+          $ref: '#/components/schemas/Transaction'
+        payment:
+          $ref: '#/components/schemas/Payment'
+        device:
+          $ref: '#/components/schemas/Device'
+        attributes:
+          type: object
+          additionalProperties:
+            type: string
+          description: 'Free-form string map for partner-specific signals that do not fit a
+
+            typed object.
+
+
+            Send only values you own. Geo, demographics, device type and OS,
+
+            payment method, and modeled signals are derived by Rokt and will be
+
+            overwritten if sent.
+
+            '
+    Page:
+      type: object
+      required:
+      - page_identifier
+      properties:
+        page_identifier:
+          type: string
+          description: Differentiates the views or pages in your journey.
+          example: checkout
+        page_variation_code:
+          type: string
+          description: Optional variation code for the page.
+    Customer:
+      type: object
+      properties:
+        email:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        gender:
+          type: string
+        postal_code:
+          type: string
+        language:
+          type: string
+          description: Language code, e.g. `en`.
+    Transaction:
+      type: object
+      properties:
+        transaction_value:
+          type: number
+        currency:
+          type: string
+          description: ISO 4217 currency code, e.g. `USD`.
+        confirmation_ref:
+          type: string
+          description: Your order or confirmation reference.
+    Payment:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Payment method type, e.g. `card`.
+    Device:
+      type: object
+      properties:
+        user_agent:
+          type: string
+          description: User agent of the client device or application.
+    OffersResponse:
+      type: object
+      required:
+      - session_id
+      - page_instance_guid
+      - session_token
+      properties:
+        session_id:
+          type: string
+          description: 'Identifies this session. Send it as each event''s `session_id` on the
+
+            events call.
+
+            '
+        page_instance_guid:
+          type: string
+          description: 'Identifies this page view. Send it as `data.page_instance_guid` on
+
+            every event.
+
+            '
+        session_token:
+          $ref: '#/components/schemas/SessionToken'
+        plugins:
+          type: array
+          description: 'The offers to render. **An empty array is a valid, successful
+
+            no-fill** — render nothing and continue.
+
+            '
+          items:
+            $ref: '#/components/schemas/Plugin'
+    Plugin:
+      type: object
+      properties:
+        plugin:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            config:
+              type: object
+              properties:
+                instance_guid:
+                  type: string
+                slots:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Slot'
+        fonts:
+          type: array
+          description: Fonts referenced by the offer, when the account uses them.
+          items:
+            type: object
+    Slot:
+      type: object
+      description: A position in the layout, holding at most one offer.
+      properties:
+        instance_guid:
+          type: string
+          description: Use as an event `parent_id` when reporting on the slot.
+        token:
+          type: string
+          description: Event token for this slot.
+        offer:
+          $ref: '#/components/schemas/Offer'
+    Offer:
+      type: object
+      properties:
+        campaign_id:
+          type: string
+        account_id:
+          type: string
+        creative:
+          $ref: '#/components/schemas/Creative'
+    Creative:
+      type: object
+      description: The renderable content of the offer.
+      properties:
+        instance_guid:
+          type: string
+          description: 'Use as the event `parent_id` when reporting an impression or view of
+
+            this creative.
+
+            '
+        token:
+          type: string
+          description: Event token for this creative.
+        referral_creative_id:
+          type: string
+        advertiser:
+          $ref: '#/components/schemas/Advertiser'
+        copy:
+          type: object
+          additionalProperties:
+            type: string
+          description: 'Renderable copy, keyed by field name. Commonly used keys:
+
+
+            - `creative.title` — headline
+
+            - `creative.image.src` — image URL
+
+            - `creative.disclaimer` — disclaimer text
+
+            - `creative.termsAndConditions.link` — terms link
+
+            - `creative.privacyPolicy.link` — privacy policy link
+
+
+            Treat this as an open map: the keys available depend on the campaign,
+
+            and reading an absent key should degrade gracefully rather than fail.
+
+            '
+        response_options_map:
+          type: object
+          description: 'The actions a customer can take, keyed by role — typically `positive`
+
+            and `negative`.
+
+            '
+          additionalProperties:
+            $ref: '#/components/schemas/ResponseOption'
+    Advertiser:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The advertiser's legal entity name.
+        brand:
+          type: string
+          description: The advertiser's brand name.
+    ResponseOption:
+      type: object
+      description: One action a customer can take on an offer.
+      properties:
+        id:
+          type: string
+        instance_guid:
+          type: string
+          description: 'Use as the event `parent_id` when reporting that the customer chose
+
+            this option.
+
+            '
+        token:
+          type: string
+          description: Event token for this response option.
+        action:
+          type: string
+          description: 'What the option does, e.g. `Url` to navigate, `CaptureOnly` to record
+
+            the choice without navigating.
+
+            '
+        short_label:
+          type: string
+        long_label:
+          type: string
+        is_positive:
+          type: boolean
+          description: Whether this option represents acceptance of the offer.
+        url:
+          type: string
+          description: Destination when `action` is `Url`.
+        url_behavior:
+          type: string
+          description: How to open `url`, e.g. `newTab`.
+        signal_type:
+          type: string
+    EventsRequest:
+      type: object
+      required:
+      - channel
+      - single_session
+      - events
+      properties:
+        channel:
+          $ref: '#/components/schemas/Channel'
+        single_session:
+          type: boolean
+          description: 'Send `true`. Links every event in the batch to the session named by
+
+            each event''s `session_id`.
+
+            '
+          example: true
+        events:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Event'
+    Event:
+      type: object
+      required:
+      - event_type
+      - instance_id
+      - session_id
+      - timestamp
+      - data
+      properties:
+        event_type:
+          type: string
+          description: "What happened. `impression`, `viewed`, and `signal_response` are\nexpected from every server-to-server integration; send\
+            \ `dismissal`\nas well if your UI lets a customer close an offer:\n\n- `impression` — the element rendered and is visible to the customer.\n\
+            \  Send one for each element that renders. If you delay appearance,\n  raise it when the element is unhidden.\n- `viewed` — the creative\
+            \ was at least 50% visible for one continuous\n  second, matching the [IAB](https://www.iab.com/) viewability\n  definition. Exclude\
+            \ bot traffic and any other invalid activity.\n  Send one for each creative that becomes viewable.\n- `signal_response` — the customer\
+            \ engaged with a response option.\n  Send one for each interaction.\n- `dismissal` — the customer dismissed the offer without engaging\n\
+            \  with a response option, for example by closing it. Send one per\n  dismissed element.\n"
+          enum:
+          - impression
+          - viewed
+          - signal_response
+          - dismissal
+        instance_id:
+          type: string
+          description: 'A UUID you generate for this event, used to deduplicate retries. Send
+
+            the same value if you resend the same event.
+
+            '
+        session_id:
+          type: string
+          description: The `session_id` from the offers response.
+        timestamp:
+          type: integer
+          format: int64
+          description: When the event occurred, in Unix epoch milliseconds.
+          example: 1751234567000
+        data:
+          $ref: '#/components/schemas/EventData'
+    EventData:
+      type: object
+      required:
+      - parent_id
+      - page_instance_guid
+      - token
+      properties:
+        parent_id:
+          type: string
+          description: 'The `instance_guid` of the element this event is about, taken from the
+
+            offers response — the creative''s for an impression, a response
+
+            option''s for a response.
+
+
+            Echo the value verbatim. It may carry a type prefix such as
+
+            `ad:<uuid>`; send it exactly as returned.
+
+            '
+        page_instance_guid:
+          type: string
+          description: The `page_instance_guid` from the offers response.
+        token:
+          type: string
+          description: 'The event token for that element, from the offers response. Each
+
+            element carries its own token — send the one belonging to the element
+
+            named by `parent_id`.
+
+            '
+        capture_method:
+          type: string
+          description: How the event was captured, e.g. `ClientProvided`.
+    EventsResponse:
+      type: object
+      properties:
+        session_token:
+          $ref: '#/components/schemas/SessionToken'
+        event_ids:
+          type: array
+          description: IDs assigned to the accepted events, in request order.
+          items:
+            type: string
+        errors:
+          type: array
+          description: 'Rejected events. Empty when all were accepted. Each entry names the
+
+            event by its `index` in the request array.
+
+            '
+          items:
+            $ref: '#/components/schemas/EventResult'
+        warnings:
+          type: array
+          description: 'Non-fatal issues with accepted events. Empty when there are none.
+
+            '
+          items:
+            $ref: '#/components/schemas/EventResult'
+    EventResult:
+      type: object
+      properties:
+        index:
+          type: integer
+          description: Position of the event in the submitted `events` array.
+        code:
+          type: string
+        message:
+          type: string
+x-source: https://docs.rokt.com/redocusaurus/session-api.yaml
+x-retrieved: '2026-10-21'

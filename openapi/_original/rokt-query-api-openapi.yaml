@@ -1,0 +1,1366 @@
+openapi: 3.0.0
+info:
+  description: >
+    # Introduction
+
+    The Rokt Query API is a comprehensive and flexible API for querying account
+    data,
+
+    campaigns, and transactions.
+
+
+    # Authentication
+
+    The Rokt Query API leverages the OAuth 2.0 approach to client integration. 
+
+    See the [OAuth 2.0 Credentials
+    Flow](https://auth0.com/docs/flows/client-credentials-flow) for more
+    details. 
+
+    You need to use your Rokt App ID and App Secret to access the Query API.
+
+
+    ## Generating a Rokt App ID and App Secret
+
+
+    1. Sign in to One Platform at [my.rokt.com](https://my.rokt.com)
+
+    2. Navigate to **Profile Settings** under your account icon at the bottom
+    left
+
+    3. Scroll down to the **Generate Personal API Credentials** section
+
+    4. Enter the name of your app and click **Generate**
+
+    5. Store the App ID and App Secret securely - you will not have access to
+    the App Secret again
+
+
+    ## Generating an Access Token
+
+
+    Rokt uses OAuth 2.0 for secure authentication to our public APIs. This is to
+    ensure that only authorized users can access their data.
+
+
+    To generate an access token, make the following POST request.
+
+
+    ```cURL
+
+    curl -X POST https://api.rokt.com/auth/oauth2/token \
+
+    --header "Authorization: Basic $ENCODED_TOKEN" \
+
+    --header "Content-Type: application/x-www-form-urlencoded" \
+
+    --data "grant_type=client_credentials"
+
+    ```
+
+
+    The access token expires after one hour, and must be included as a Bearer
+    token in all API requests.
+
+
+    ### Step-by-Step Example
+
+
+    Here's a complete example using shell commands:
+
+    ```bash
+
+    # Step 1: Set your environment variables. Do not store these in version
+    control
+
+    export ROKT_APP_ID="your_app_id"
+
+    export ROKT_APP_SECRET="your_secret"
+
+
+    # Step 2: Encode your credentials to generate an auth token
+
+    export ENCODED_TOKEN=$(printf '%s' "${ROKT_APP_ID}:${ROKT_APP_SECRET}" |
+    openssl base64 | tr -d '\n')
+
+
+    # Step 3: Request OAuth2/Bearer token using Basic Auth with the encoded
+    token
+
+    BEARER_TOKEN=$(curl -s -X POST https://api.rokt.com/auth/oauth2/token      
+    -H "Authorization: Basic $ENCODED_TOKEN"       -H "Content-Type:
+    application/x-www-form-urlencoded"       -d "grant_type=client_credentials"
+    | jq -r '.access_token')
+
+
+    # Step 4: Use the Bearer token in Query API requests
+
+    curl -X GET "https://api.rokt.com/v1/query/accounts" \
+      --header 'Content-Type: application/json' \
+      --header "Authorization: Bearer $BEARER_TOKEN"
+    ```
+
+
+    ## Important Notes
+
+    - Always use environment variables for credentials to avoid exposing them in
+    scripts or version control
+
+    - The `printf` command with `openssl base64` ensures proper encoding without
+    newline characters
+
+    - Store the access token securely as it provides full API access until
+    expiration
+
+
+    # Rate Limiting
+
+    API requests are rate-limited to ensure fair usage and system stability.
+
+
+    # Error Handling
+
+    The API returns standardized error responses with appropriate HTTP status
+    codes.
+  version: 1.0.0
+  title: Query API
+  x-logo:
+    url: https://rokt.com/logo.png
+tags:
+  - name: accounts
+    description: Account endpoints
+  - name: campaigns
+    description: Campaign endpoints
+  - name: transactions
+    description: Transaction endpoints
+  - name: account_model
+    x-displayName: Account Model
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/AccountExternal" />
+  - name: reporting_request
+    x-displayName: Reporting Request Model
+    description: >
+      <SchemaDefinition
+      schemaRef="#/components/schemas/ReportingRequestExternal" />
+  - name: reporting_response
+    x-displayName: Reporting Response Model
+    description: >
+      <SchemaDefinition
+      schemaRef="#/components/schemas/ReportingResponseExternal" />
+  - name: reporting_metadata
+    x-displayName: Reporting Metadata Model
+    description: >
+      <SchemaDefinition
+      schemaRef="#/components/schemas/ReportingMetadataExternal" />
+x-tagGroups:
+  - name: Accounts
+    tags:
+      - accounts
+  - name: Campaigns
+    tags:
+      - campaigns
+  - name: Transactions
+    tags:
+      - transactions
+  - name: Models
+    tags:
+      - account_model
+      - reporting_request
+      - reporting_response
+      - reporting_metadata
+paths:
+  /v1/query/accounts/:
+    get:
+      tags:
+        - accounts
+      summary: Get User Accounts
+      description: >-
+        Retrieve all accounts associated with the authenticated user.
+
+
+        This endpoint returns a list of all accounts that the authenticated
+
+        user has access to.
+
+        The response includes account details such as account ID, name, country,
+        currency,
+
+        and timezone information.
+
+
+        ## Authentication
+
+        Requires a valid Bearer token from a user's Rokt JWT or encoded OAuth2
+        token.
+
+        For more information about authenticating with our API, see the
+
+        [Authentication](https://docs.rokt.com/developer-reference/apis/reporting-apis/query-api/api-reference/#section/Authentication)
+
+        documentation.
+
+
+        ## Response
+
+        Returns a list of account objects with the following structure:
+
+        - `accountId`: Unique identifier for the account
+
+        - `accountName`: Display name of the account
+
+        - `countryCode`: ISO country code for the account
+
+        - `accountOwner`: Email address of the account owner (optional)
+
+        - `accountCurrencyCode`: Currency code for the account
+
+        - `accountTimezone`: Timezone name for the account
+
+        - `accountTimezoneOffset`: Timezone offset in minutes
+
+
+        ## Error Responses
+
+        - `401 Unauthorized`: Failed to authenticate. Invalid token.
+
+        - `404 Not Found`: User does not have any accounts
+
+        - `500 Internal Server Error`: Server error while retrieving accounts
+
+
+        ## Example Response
+
+        ```json
+
+        [
+            {
+                "accountId": "acc_123456789",
+                "accountName": "Example Account 1",
+                "countryCode": "US",
+                "accountOwner": "user@example.com",
+                "accountCurrencyCode": "USD",
+                "accountTimezone": "America/New_York",
+                "accountTimezoneOffset": -300
+            },
+            {
+                "accountId": "acc_123456790",
+                "accountName": "Example Account 2",
+                "countryCode": "AU",
+                "accountOwner": "user@example.com",
+                "accountCurrencyCode": "AUD",
+                "accountTimezone": "Australia/Sydney",
+                "accountTimezoneOffset": 600
+            }
+        ]
+
+        ```
+      operationId: get_user_accounts_v1_query_accounts__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AccountExternal'
+                type: array
+                title: Response Get User Accounts V1 Query Accounts  Get
+        '401':
+          description: Failed to authenticate. Invalid token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '404':
+          description: User does not have any accounts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '500':
+          description: >-
+            An unexpected error occurred. Please validate your request is
+            correct and try again.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+  /v1/query/accounts/{account_id}:
+    get:
+      tags:
+        - accounts
+      summary: Get Account
+      description: >-
+        Retrieve detailed information for a specific account.
+
+
+        This endpoint returns detailed information about a specific account
+        identified
+
+        by the account_id parameter.
+
+        The user must have access permissions to the specified account.
+
+
+        ## Parameters
+
+        - `accountId` (path): The unique identifier of the account to retrieve
+
+
+        ## Authentication
+
+        Requires a valid Bearer token from a user's Rokt JWT or encoded OAuth2
+        token.
+
+        For more information about authenticating with our API, see the
+
+        [Authentication](https://docs.rokt.com/developer-reference/apis/reporting-apis/query-api/api-reference/#section/Authentication)
+
+        documentation.
+
+        The user must have access permissions to the specified account and
+        campaign data.
+
+
+        ## Response
+
+        Returns a single account object with the following structure:
+
+        - `accountId`: Unique identifier for the account
+
+        - `accountName`: Display name of the account
+
+        - `countryCode`: ISO country code for the account
+
+        - `accountOwner`: Email address of the account owner (optional)
+
+        - `accountCurrencyCode`: Currency code for the account
+
+        - `accountTimezone`: Timezone name for the account
+
+        - `accountTimezoneOffset`: Timezone offset in minutes
+
+
+        ## Error Responses
+
+        - `401 Unauthorized`: Failed to authenticate. Invalid token.
+
+        - `403 Forbidden`: User does not have access to the specified account
+
+        - `404 Not Found`: Account with the specified ID does not exist
+
+        - `500 Internal Server Error`: Server error while retrieving account
+
+
+        ## Example Request
+
+        ```
+
+        GET /v1/query/accounts/acc_123456789
+
+        ```
+
+
+        ## Example Response
+
+        ```json
+
+        {
+            "accountId": "acc_123456789",
+            "accountName": "Example Account 1",
+            "countryCode": "US",
+            "accountOwner": "user@example.com",
+            "accountCurrencyCode": "USD",
+            "accountTimezone": "America/New_York",
+            "accountTimezoneOffset": -300
+        }
+
+        ```
+      operationId: get_account_v1_query_accounts__account_id__get
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Account Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountExternal'
+        '401':
+          description: Failed to authenticate. Invalid token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '403':
+          description: User does not have access to the specified account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '404':
+          description: Account with the specified ID does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '500':
+          description: >-
+            An unexpected error occurred. Please validate your request is
+            correct and try again.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+  /v1/query/accounts/{account_id}/campaigns/:
+    post:
+      tags:
+        - campaigns
+      summary: Get Advertiser Report
+      description: >-
+        Generate a comprehensive campaign report for the specified account.
+
+
+        This endpoint allows you to query campaign performance data with
+        flexible filtering,
+
+        metrics selection, and date range specification. The response includes
+        aggregated
+
+        campaign data based on your specified criteria.
+
+
+        ## Parameters
+
+        - `account_id` (path): The unique identifier of the account for which
+
+        to generate the report
+
+
+        ## Request Body
+
+        The request body should contain a `ReportingRequestExternal` object
+
+        with the following fields:
+
+        - `timezoneVariation` (string, optional): Timezone for the report data
+
+        (default: "America/New_York")
+
+        - `currencyCode` (string, optional): Currency code for the report data
+
+        (default: "USD")
+
+        - `interval` (string, optional): Time interval for the report data.
+
+        Options: "day", "week", "month", "year"
+
+        - `startDate` (string): Start date for the report period in ISO format
+        (inclusive).
+
+        Accepts both YYYY-MM-DD and YYYY-MM-DD HH:MM:SS
+
+        - `endDate` (string): End date for the report period in ISO format
+        (exclusive).
+
+        Accepts both YYYY-MM-DD and YYYY-MM-DD HH:MM:SS
+
+        - `dimensionFilters` (object, optional): Filters to apply to specific
+        dimensions
+
+        - `metrics` (array): List of metrics to include in the report. 
+
+        For available metrics, use the slugs returned from the `get_help`
+        endpoint.
+
+        - `dimensions` (array, optional): Dimensions to group the data by.
+
+        For available dimensions, use the slugs returned from the `get_help`
+        endpoint.
+
+        - `orderBys` (array, optional): Sorting criteria for the results.
+
+        Accepts both "column" and "direction" keys.
+
+        - `limit` (integer, optional): Maximum number of results to return
+
+
+        ## Authentication
+
+        Requires either a valid JWT Bearer token or Cognito token in the request
+        headers.
+
+        For more information about authenticating with our API, see the
+
+        [Authentication](https://docs.rokt.com/developer-reference/apis/reporting-apis/query-api/#authentication)
+
+        documentation.
+
+        The user must have access permissions to the specified account and
+        campaign data.
+
+
+        ## Response
+
+        Returns a `ReportingResponseExternal` object containing:
+
+        - `data`: Array of requested campaign metrics and dimensions.
+
+        If interval is provided, each object will contain a `datetime` field
+
+        denoting the start of the provided interval.
+
+        - `accountId`: The account ID for which the report was generated
+
+        - `queryTimeMs`: Query execution time in milliseconds
+
+
+        ## Error Responses
+
+        - `400 Bad Request`: Invalid request parameters or filters
+
+        - `401 Unauthorized`: Failed to authenticate. Invalid token.
+
+        - `403 Forbidden`: User does not have access to the specified account
+
+        - `404 Not Found`: The requested resource was not found.
+            Please validate your request is correct and try again.
+        - `500 Internal Server Error`: Server error while generating report
+
+
+        ## Example Request
+
+        ```json
+
+        {
+            "timezoneVariation": "America/New_York",
+            "currencyCode": "USD",
+            "interval": "day",
+            "startDate": "2025-03-04",
+            "endDate": "2025-03-05",
+            "dimensionFilters": {
+                "campaign_id": ["3427232771076128951"]
+            },
+            "metrics": ["impressions", "referrals", "gross_cost"],
+            "dimensions": ["campaign_id", "creative_id", "age_group"],
+            "orderBys": [
+                {
+                    "column": "referrals",
+                    "direction": "desc"
+                }
+            ]
+        }
+
+        ```
+
+
+        ## Example Response
+
+        ```json
+
+        {
+            "data": [
+                {
+                    "datetime": "2025-03-04T00:00:00Z",
+                    "impressions": 1501.0,
+                    "referrals": 205.0,
+                    "gross_cost": 410.05,
+                    "campaign_id": "3427232771076128951",
+                    "creative_id": "3427232968644886703",
+                    "age_group": "26-35"
+                },
+                {
+                    "datetime": "2025-03-04T00:00:00Z",
+                    "impressions": 1220.0,
+                    "referrals": 180.0,
+                    "gross_cost": 300.00,
+                    "campaign_id": "3401676908203081730",
+                    "creative_id": "3404563830614458492",
+                    "age_group": "36-45"
+                }
+            ],
+            "accountId": "3286272607917027328",
+            "queryTimeMs": 206
+            }
+        ```
+      operationId: get_advertiser_report_v1_query_accounts__account_id__campaigns__post
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Account Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportingRequestExternal'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportingResponseExternal'
+        '400':
+          description: Invalid request parameters or filters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '401':
+          description: Failed to authenticate. Invalid token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '404':
+          description: >-
+            The requested resource was not found. Please validate your request
+            is correct and try again.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '500':
+          description: Server error while generating report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+  /v1/query/accounts/{account_id}/campaigns/help:
+    get:
+      tags:
+        - campaigns
+      summary: Get Help
+      description: >-
+        Retrieve available metrics and dimensions for campaign reporting.
+
+
+        This endpoint returns metadata about the available reporting options,
+        including
+
+        which metrics and dimensions can be used together, their display names,
+        and
+
+        any additional configuration options.
+
+
+        ## Parameters
+
+        - `account_id` (path): The unique identifier of the account
+
+        (used for access validation)
+
+
+        ## Authentication
+
+        Requires a valid Bearer token from a user's Rokt JWT or encoded OAuth2
+        token.
+
+        For more information about authenticating with our API, see the
+
+        [Authentication](https://docs.rokt.com/developer-reference/apis/reporting-apis/query-api/api-reference/#section/Authentication)
+
+        documentation.
+
+        The user must have access permissions to the specified account and
+        campaign data.
+
+
+        ## Response
+
+        Returns a `ReportingMetadataExternal` object containing:
+
+        - `dimensions`: List of dimensions with their slugs and descriptions
+
+        - `metrics`: List of metrics with their slugs and descriptions
+
+
+        ## Error Responses
+
+        - `401 Unauthorized`: Failed to authenticate. Invalid token.
+
+        - `403 Forbidden`: User does not have access to the specified account
+
+        - `404 Not Found`: The requested resource was not found.
+            Please validate your request is correct and try again.
+        - `500 Internal Server Error`: Server error while retrieving metadata
+
+
+        ## Example Response
+
+        ```json
+
+        {
+          "dimensions": [
+              {
+                  "slug": "age_range",
+                  "description": "The age range of the user"
+              },
+              {
+                  "slug": "campaign_id",
+                  "description": "The ID of the campaign"
+              },
+              {
+                  "slug": "creative_id",
+                  "description": "The ID of the creative"
+              },
+              {
+                  "slug": "device",
+                  "description": "The device of the user"
+              },
+          ],
+          "metrics": [
+              {
+                  "slug": "impressions",
+                  "description": "The number of ad impressions"
+              },
+              {
+                  "slug": "referrals",
+                  "description": "The number of positive engagements with the ad"
+              },
+              {
+                  "slug": "clickthru_acquisitions",
+                  "description": "The number of click-thru acquisitions for the ad.
+                  An acquisition represents the first conversion
+                  following an engagement event."
+              },
+              {
+                  "slug": "cpa",
+                  "description": "The Cost per Acquisition for the ad"
+              },
+              {
+                  "slug": "gross_cost",
+                  "description": "The gross cost (spend) for the ad"
+              },
+          ]
+        }
+
+        ```
+      operationId: get_help_v1_query_accounts__account_id__campaigns_help_get
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Account Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportingMetadataExternal'
+        '401':
+          description: Failed to authenticate. Invalid token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '404':
+          description: >-
+            The requested resource was not found. Please validate your request
+            is correct and try again.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '500':
+          description: Server error while generating report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+  /v1/query/accounts/{account_id}/transactions:
+    post:
+      tags:
+        - transactions
+      summary: Get Partner Report
+      description: >-
+        Generate a comprehensive transaction report for the specified account.
+
+
+        This endpoint allows you to query transaction data with flexible
+        filtering,
+
+        metrics selection, and date range specification. The response includes
+        aggregated
+
+        transaction data based on your specified criteria.
+
+
+        ## Parameters
+
+        - `account_id` (path): The unique identifier of the account for which
+
+        to generate the report
+
+
+        ## Request Body
+
+        The request body should contain a `ReportingRequestExternal` object
+
+        with the following fields:
+
+        - `timezoneVariation` (string, optional): Timezone for the report data
+
+        (default: "America/New_York")
+
+        - `currencyCode` (string, optional): Currency code for the report data
+
+        (default: "USD")
+
+        - `interval` (string, optional): Time interval for the report data.
+
+        Options: "day", "week", "month", "year"
+
+        - `startDate` (string): Start date for the report period in ISO format
+        (inclusive).
+
+        Accepts both YYYY-MM-DD and YYYY-MM-DD HH:MM:SS
+
+        - `endDate` (string): End date for the report period in ISO format
+        (exclusive).
+
+        Accepts both YYYY-MM-DD and YYYY-MM-DD HH:MM:SS
+
+        - `dimensionFilters` (object, optional): Filters to apply to specific
+        dimensions
+
+        - `metrics` (array): List of metrics to include in the report.
+
+        For available metrics, use the slugs returned from the `get_help`
+        endpoint.
+
+        - `dimensions` (array, optional): Dimensions to group the data by.
+
+        For available dimensions, use the slugs returned from the `get_help`
+        endpoint.
+
+        - `orderBys` (array, optional): Sorting criteria for the results.
+
+        Accepts both "column" and "direction" keys.
+
+        - `limit` (integer, optional): Maximum number of results to return
+
+
+        ## Authentication
+
+        Requires either a valid JWT Bearer token or Cognito token in the request
+        headers.
+
+        For more information about authenticating with our API, see the
+
+        [Authentication](https://docs.rokt.com/developer-reference/apis/reporting-apis/query-api/#authentication)
+
+        documentation.
+
+        The user must have access permissions to the specified account and
+        transaction data.
+
+
+        ## Response
+
+        Returns a `ReportingResponseExternal` object containing:
+
+        - `data`: Array of requested transaction metrics and dimensions.
+
+        If interval is provided, each object will contain a `datetime` field
+
+        denoting the start of the provided interval.
+
+        - `accountId`: The account ID for which the report was generated
+
+        - `queryTimeMs`: Query execution time in milliseconds
+
+
+        ## Error Responses
+
+        - `400 Bad Request`: Invalid request parameters or filters
+
+        - `401 Unauthorized`: Failed to authenticate. Invalid token.
+
+        - `403 Forbidden`: User does not have access to the specified account
+
+        - `404 Not Found`: The requested resource was not found.
+            Please validate your request is correct and try again.
+        - `500 Internal Server Error`: Server error while generating report
+
+
+        ## Example Request
+
+        ```json
+
+        {
+            "timezoneVariation": "America/New_York",
+            "currencyCode": "USD",
+            "interval": "day",
+            "startDate": "2025-03-04",
+            "endDate": "2025-03-05",
+            "dimensionFilters": {
+                "page_type": ["confirmation"]
+            },
+            "metrics": ["impressions", "referrals", "total_page_transactions"],
+            "dimensions": ["display_type", "page_type", "age_range"],
+            "orderBys": [
+                {
+                    "column": "referrals",
+                    "direction": "desc"
+                }
+            ]
+        }
+
+        ```
+
+
+        ## Example Response
+
+        ```json
+
+        {
+            "data": [
+                {
+                    "datetime": "2025-03-04T00:00:00Z",
+                    "impressions": 1501.0,
+                    "referrals": 205.0,
+                    "total_page_transactions": 1600.0,
+                    "display_type": "desktop",
+                    "page_type": "confirmation",
+                    "age_range": "26-35"
+                },
+                {
+                    "datetime": "2025-03-04T00:00:00Z",
+                    "impressions": 1220.0,
+                    "referrals": 180.0,
+                    "total_page_transactions": 1400.0,
+                    "display_type": "mobile",
+                    "page_type": "confirmation",
+                    "age_range": "36-45"
+                }
+            ],
+            "accountId": "3286272607917027328",
+            "queryTimeMs": 206
+            }
+        ```
+      operationId: get_partner_report_v1_query_accounts__account_id__transactions_post
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Account Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportingRequestExternal'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportingResponseExternal'
+        '400':
+          description: Invalid request parameters or filters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '401':
+          description: Failed to authenticate. Invalid token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '404':
+          description: >-
+            The requested resource was not found. Please validate your request
+            is correct and try again.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '500':
+          description: Server error while generating report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+  /v1/query/accounts/{account_id}/transactions/help:
+    get:
+      tags:
+        - transactions
+      summary: Get Help
+      description: >-
+        Retrieve available metrics and dimensions for transaction reporting.
+
+
+        This endpoint returns metadata about the available reporting options,
+        including
+
+        which metrics and dimensions can be used together, their display names,
+        and
+
+        any additional configuration options.
+
+
+        ## Parameters
+
+        - `account_id` (path): The unique identifier of the account
+
+        (used for access validation)
+
+
+        ## Authentication
+
+        Requires a valid Bearer token from a user's Rokt JWT or encoded OAuth2
+        token.
+
+        For more information about authenticating with our API, see the
+
+        [Authentication](https://docs.rokt.com/developer-reference/apis/reporting-apis/query-api/api-reference/#section/Authentication)
+
+        documentation.
+
+        The user must have access permissions to the specified account and
+        transaction data.
+
+
+        ## Response
+
+        Returns a `ReportingMetadataExternal` object containing:
+
+        - `dimensions`: List of dimensions with their slugs and definitions
+
+        - `metrics`: List of metrics with their slugs and definitions
+
+
+        ## Error Responses
+
+        - `401 Unauthorized`: Failed to authenticate. Invalid token.
+
+        - `403 Forbidden`: User does not have access to the specified account
+
+        - `404 Not Found`: The requested resource was not found.
+            Please validate your request is correct and try again.
+        - `500 Internal Server Error`: Server error while retrieving metadata
+
+
+        ## Example Response
+
+        ```json
+
+        {
+            "dimensions": [
+                {
+                    "slug": "age_range",
+                    "description": "The age range of the user"
+                },
+                {
+                    "slug": "display_type",
+                    "description": "The type of display the ad was shown on"
+                },
+                {
+                    "slug": "page_type",
+                    "description": "The type of page the user was on"
+                },
+                {
+                    "slug": "device",
+                    "description": "The device of the user"
+                },
+            ],
+            "metrics": [
+                {
+                    "slug": "transactions",
+                    "description": "Total number of transactions"
+                },
+                {
+                    "slug": "rokt_transactions_per_transaction",
+                    "description": "Total number of transactions processed by Rokt per transaction"
+                },
+                {
+                    "slug": "impressions",
+                    "description": "Total number of advertisement impressions"
+                },
+                {
+                    "slug": "page_transactions",
+                    "description": "Total number of transactions processed by page"
+                },
+                {
+                    "slug": "layout_impressions",
+                    "description": "Total number of advertisement impressions processed by layout"
+                },
+            ]
+        }
+
+        ```
+      operationId: get_help_v1_query_accounts__account_id__transactions_help_get
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Account Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportingMetadataExternal'
+        '401':
+          description: Failed to authenticate. Invalid token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '404':
+          description: >-
+            The requested resource was not found. Please validate your request
+            is correct and try again.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '500':
+          description: Server error while generating report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+components:
+  schemas:
+    AccountExternal:
+      properties:
+        accountId:
+          type: string
+          title: Accountid
+        accountName:
+          type: string
+          title: Accountname
+        countryCode:
+          type: string
+          title: Countrycode
+        accountOwner:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Accountowner
+        accountCurrencyCode:
+          type: string
+          title: Accountcurrencycode
+        accountTimezone:
+          type: string
+          title: Accounttimezone
+        accountTimezoneOffset:
+          type: integer
+          title: Accounttimezoneoffset
+      type: object
+      required:
+        - accountId
+        - accountName
+        - countryCode
+        - accountOwner
+        - accountCurrencyCode
+        - accountTimezone
+        - accountTimezoneOffset
+      title: AccountExternal
+      description: Account model for API response.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    Message:
+      properties:
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+        - message
+      title: Message
+    ReportingMetadataExternal:
+      properties:
+        dimensions:
+          items:
+            additionalProperties:
+              type: string
+            type: object
+          type: array
+          title: Dimensions
+        metrics:
+          items:
+            additionalProperties:
+              type: string
+            type: object
+          type: array
+          title: Metrics
+      type: object
+      required:
+        - dimensions
+        - metrics
+      title: ReportingMetadataExternal
+      description: |-
+        Advertiser metadata model.
+        Used to surface available metrics and dimensions to the user.
+    ReportingRequestExternal:
+      properties:
+        timezoneVariation:
+          type: string
+          title: Timezonevariation
+          default: America/New_York
+        currencyCode:
+          type: string
+          title: Currencycode
+          default: USD
+        startDate:
+          type: string
+          title: Startdate
+          default: '2025-07-01T13:31:16.821359'
+        endDate:
+          type: string
+          title: Enddate
+          default: '2025-07-08T13:31:16.821386'
+        dimensionFilters:
+          anyOf:
+            - additionalProperties:
+                items:
+                  type: string
+                type: array
+              type: object
+            - type: 'null'
+          title: Dimensionfilters
+          default: {}
+        limit:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Limit
+        metrics:
+          items:
+            type: string
+          type: array
+          title: Metrics
+        dimensions:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Dimensions
+          default: []
+        orderBys:
+          anyOf:
+            - items:
+                additionalProperties:
+                  type: string
+                type: object
+              type: array
+            - type: 'null'
+          title: Orderbys
+          default: []
+        interval:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Interval
+      type: object
+      required:
+        - metrics
+      title: ReportingRequestExternal
+      description: Reporting request model.
+    ReportingResponseExternal:
+      properties:
+        data:
+          items:
+            type: object
+          type: array
+          title: Data
+        accountId:
+          type: string
+          title: Accountid
+        queryTimeMs:
+          type: integer
+          title: Querytimems
+      type: object
+      required:
+        - data
+        - accountId
+        - queryTimeMs
+      title: ReportingResponseExternal
+      description: Result model.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+        - loc
+        - msg
+        - type
+      title: ValidationError
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: A user's Rokt JWT or encoded OAuth2 token

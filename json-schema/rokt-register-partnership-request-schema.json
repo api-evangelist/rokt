@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/rokt/main/json-schema/rokt-register-partnership-request-schema.json",
+  "title": "RegisterPartnershipRequest",
+  "x-generated": "2026-10-21",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/rokt-partnerships-api-openapi.yml#/components/schemas/RegisterPartnershipRequest",
+  "type": "object",
+  "required": [
+    "brand",
+    "vertical_id",
+    "sub_vertical_id",
+    "country_code",
+    "platform_parent_account_id",
+    "store_identifier",
+    "external_account_id",
+    "user_identifier"
+  ],
+  "properties": {
+    "brand": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "Display name of the merchant."
+    },
+    "vertical_id": {
+      "type": "integer",
+      "description": "Partner-taxonomy vertical ID. Translated server-side to Rokt's taxonomy via your vertical mapping."
+    },
+    "sub_vertical_id": {
+      "type": "integer",
+      "description": "Partner-taxonomy sub-vertical ID."
+    },
+    "country_code": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$",
+      "description": "ISO 3166-1 alpha-2 country code, uppercase."
+    },
+    "platform_parent_account_id": {
+      "type": "string",
+      "description": "Your partner platform's Rokt parent account ID."
+    },
+    "store_identifier": {
+      "type": "string",
+      "format": "uri",
+      "minLength": 3,
+      "maxLength": 400,
+      "description": "Stable URL identifying the merchant's storefront. Used for cross-partner conflict detection."
+    },
+    "external_account_id": {
+      "type": "string",
+      "description": "Your stable identifier for the merchant in your own system. Idempotency key for registration."
+    },
+    "user_identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255,
+      "description": "Identifier of the user initiating the signup on your platform,\ntypically the merchant owner's email address or your stable\ninternal user ID. Stored as the audit tag\n`partnership_signup_user_identifier` on the created account for\nconsent / compliance trails. Required; non-empty after trimming;\nmax 255 characters.\n"
+    },
+    "pages": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Optional **for most integrations**: when omitted, Rokt creates\nthe preset's default page set (typically `confirmation` +\n`Overlay`). When supplied, Rokt creates one page + layout per\nentry instead.\n\n**A subset of integrations require `pages` to be passed\nexplicitly** because their primary surface isn't confirmation\n(e.g. tracking-focused integrations). Omitting `pages` for\nthose returns `400` with a message naming the surfaces and\nlayout types your preset accepts. Consult your Rokt contact\nif you're unsure whether your integration requires `pages`.\n\nConstraints: at least one entry when supplied; each `surface`\nmay appear only once. Empty arrays are rejected (omit the\nfield to use the preset default, or include at least one entry).\n",
+      "items": {
+        "$ref": "#/$defs/RegisterPartnershipPage"
+      }
+    }
+  },
+  "$defs": {
+    "RegisterPartnershipPage": {
+      "type": "object",
+      "required": [
+        "surface",
+        "layout_type"
+      ],
+      "description": "One entry in the optional `pages` array.",
+      "properties": {
+        "surface": {
+          "type": "string",
+          "enum": [
+            "confirmation",
+            "tracking",
+            "returns"
+          ],
+          "description": "Partner-facing surface alias. Maps server-side to Rokt's internal\npage type and customer action:\n  - `confirmation`: order confirmation page (transactional)\n  - `tracking`: shipment/order tracking page (non-transactional)\n  - `returns`: returns portal (non-transactional)\nThe `payment` surface is intentionally deferred to a later release\n(it needs its own controls treatment).\n"
+        },
+        "layout_type": {
+          "type": "string",
+          "enum": [
+            "Overlay",
+            "Embedded"
+          ],
+          "description": "Layout style for this surface.\n  - `Overlay`: modal that appears over the merchant's page.\n  - `Embedded`: renders inline within an anchor element on the\n    merchant's page (default selector `#rokt-container`).\nSome integrations support only a subset of these values; see\nthe Pages and Layouts concept page for details.\n"
+        }
+      }
+    }
+  }
+}

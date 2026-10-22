@@ -1,0 +1,77 @@
+generated: '2026-10-21'
+method: searched
+source: https://docs.rokt.com/developer-reference/apis/partnerships-api/errors/
+scope: Rokt Partnerships API (accounts.rokt.com)
+format: custom-json-envelope
+envelope:
+  fields:
+    status: integer, mirrors HTTP status
+    error: stable error code keyed to the HTTP status; null on success
+    message: human-readable description
+    request_id: server-generated correlation ID (UUID), also in X-Request-Id response header
+    data: null on error
+problems:
+- status: 400
+  title: BadRequest
+  type: BadRequest
+  description: Validation failed, payload malformed, missing required body field
+  remediation: Fix the payload, retry with a new Idempotency-Key
+- status: 401
+  title: Unauthorized
+  type: Unauthorized
+  description: Missing, expired, or invalid API token
+  remediation: Rotate the API token via your token-issuance integration
+- status: 403
+  title: Forbidden
+  type: Forbidden
+  description: API token is valid, but either (a) you don't have permission to act on that account on behalf of
+    your manager, or (b) your X-Platform-Parent-Account-Id doesn't match the managed account's real parent
+  remediation: 'Surface to ops: a manager-managed grant may have been revoked, or the header value is wrong'
+- status: 404
+  title: NotFound
+  type: NotFound
+  description: Resource doesn't exist, or isn't accessible to the caller
+  remediation: Verify account_id and that it falls inside your manager-managed scope
+- status: 409
+  title: Conflict
+  type: Conflict
+  description: Idempotency-Key conflict, or store_identifier already registered by another partner
+  remediation: See common scenarios on the errors page
+- status: 422
+  title: ValidationFailed
+  type: ValidationFailed
+  description: Missing required header (most commonly X-Platform-Parent-Account-Id on a write), or payload is semantically
+    invalid
+  remediation: Add the missing header and retry with the same key
+- status: 429
+  title: RateLimitExceeded
+  type: RateLimitExceeded
+  description: Per-partner rate limit hit
+  remediation: Honor Retry-After, retry with the same Idempotency-Key
+- status: 500
+  title: InternalServerError
+  type: InternalServerError
+  description: Rokt-side error
+  remediation: Wait and retry with the same Idempotency-Key
+- status: 501
+  title: ''
+  type: null
+  description: 'You sent Prefer: respond-async but async mode isn''t enabled for your platform yet'
+  remediation: Drop the header
+- status: 502
+  title: ''
+  type: null
+  description: Rokt-side transient (downstream service unhealthy) — documented as 502 / 503 / 504
+  remediation: Retry with backoff, same Idempotency-Key
+- status: 400
+  title: DryRunNotSupported
+  type: DryRunNotSupported
+  description: Layout PATCH, page creation, page switching, and payout setup reject dry_run=true with 400 DryRunNotSupported
+    before performing work.
+  remediation: Remove the flag only when you intend a real write.
+- status: 409
+  title: IdempotencyConflict
+  type: IdempotencyConflict
+  description: Same key in-flight, different body
+  remediation: Use a new Idempotency-Key for a different logical write.
+  source: https://docs.rokt.com/developer-reference/apis/partnerships-api/concepts/idempotency/

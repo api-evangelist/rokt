@@ -1,0 +1,462 @@
+generated: '2026-10-21'
+method: derived
+generator: derive-vocabulary.py
+source:
+- openapi/rokt-catalog-api-openapi.yml
+- openapi/rokt-partnerships-api-openapi.yml
+- openapi/rokt-query-api-openapi.yml
+- openapi/rokt-session-api-openapi.yml
+vocabulary:
+  name: Rokt Domain Vocabulary
+  description: 'Terms declared by Rokt''s own API contract: its resource groups, objects and enumerations, with the contract''s definitions. Derived,
+    not authored.'
+  version: '2026-10-21'
+  terms:
+  - term: products
+    definition: The Products endpoints give access to every product you have permission to sell on your Partner storefront, and let Brands create,
+      update, reorder, and delete the products they supply. To get permission to sell specific products, send proposals to Brands in the [Rokt
+      Catalog app](https://app.shopcanal.com/login); once a Brand approves a proposal, its products become available through these endpoin
+    tags:
+    - Resource Group
+    source: openapi/rokt-catalog-api-openapi.yml
+  - term: variants
+    definition: Variants are the purchasable options of a product (size, color, SKU, price, inventory). Brands add, update, list, and remove variants
+      for their own products; Partners receive variant data on the product and through the `product/create` and `product/update` webhooks.
+    tags:
+    - Resource Group
+    source: openapi/rokt-catalog-api-openapi.yml
+  - term: orders
+    definition: 'The Orders endpoints give access to every order containing Brand products that was purchased from your Partner storefront. **Note**:
+      only Rokt Catalog Brand products should appear in these orders. ## Order creation example ```bash curl https://api.shopcanal.com/platform/orders/
+      \ --request POST \ --header ''Content-Type: application/json'' \ --header ''Accept: application/json'' \ --header ''x-canal-ap'
+    tags:
+    - Resource Group
+    source: openapi/rokt-catalog-api-openapi.yml
+  - term: shops
+    definition: Shops are the Brand accounts connected to your Partner storefront. List your active connections, retrieve a connected Brand, or
+      request new connections by Brand contact email.
+    tags:
+    - Resource Group
+    source: openapi/rokt-catalog-api-openapi.yml
+  - term: fulfillments
+    definition: 'The Fulfillments endpoints give access to the latest shipping information for Brand orders placed through your Partner storefront.
+      Brands create and update fulfillment (shipment) records; Partners list and retrieve them to show tracking to their customers. **Note**:
+      only Rokt Catalog Brand products should appear in these fulfillments.'
+    tags:
+    - Resource Group
+    source: openapi/rokt-catalog-api-openapi.yml
+  - term: refunds
+    definition: The Refunds endpoints allow the Partner to initiate refunds for Brand products that were bought through the Partner storefront.
+      Brands can also create refunds for orders they received, and both roles can list and retrieve refunds.
+    tags:
+    - Resource Group
+    source: openapi/rokt-catalog-api-openapi.yml
+  - term: returns
+    definition: 'Partners create return requests for items purchased in a Rokt Catalog order and add tracking for the return shipment; Brands
+      review the return requests they receive and close them once the returned items have been processed. Closing a return does not create a refund:
+      use the Refunds endpoints for that.'
+    tags:
+    - Resource Group
+    source: openapi/rokt-catalog-api-openapi.yml
+  - term: shipping-rates
+    definition: The Shipping Rates endpoints allow the Partner to determine how much to charge for shipping Brand products that are bought through
+      the Partner storefront. Rokt Catalog charges the Partner this amount for shipping and passes it to the Brand. An empty list is returned
+      when the line items cannot be shipped to the given location.
+    tags:
+    - Resource Group
+    source: openapi/rokt-catalog-api-openapi.yml
+  - term: max-shipping-rates
+    definition: Estimate the highest shipping cost for a set of line items before the customer has entered an address, for "Shipping from" style
+      displays on a product page.
+    tags:
+    - Resource Group
+    source: openapi/rokt-catalog-api-openapi.yml
+  - term: tax
+    definition: Calculate estimated tax lines for a set of line items and a shipping address.
+    tags:
+    - Resource Group
+    source: openapi/rokt-catalog-api-openapi.yml
+  - term: tax-and-shipping
+    definition: Calculate estimated tax lines and available shipping options in a single call during checkout, once the customer has provided
+      a shipping address. See [Calculating Tax and Shipping for Shoppable Ads](/developer-reference/product-deep-dives/shoppable-ads/tax-and-shipping/).
+    tags:
+    - Resource Group
+    source: openapi/rokt-catalog-api-openapi.yml
+  - term: webhooks
+    definition: Register and manage webhook subscriptions so Rokt Catalog can notify your application when products, orders, and fulfillments
+      change. See the [Webhooks guide](/integration-guides/ecommerce/catalog/webhooks/) for the available topics, payloads, and delivery behavior.
+    tags:
+    - Resource Group
+    source: openapi/rokt-catalog-api-openapi.yml
+  - term: csv
+    definition: 'CSV downloads: the product import template, and line-item exports for Partners and Brands. These endpoints back the upload and
+      export flows in the Rokt Catalog app and expect a signed-in app session; use the Products and Variants endpoints with the API headers for
+      programmatic catalog changes.'
+    tags:
+    - Resource Group
+    source: openapi/rokt-catalog-api-openapi.yml
+  - term: markets
+    definition: Import market-specific prices for your products. These endpoints back the upload and export flows in the Rokt Catalog app and
+      expect a signed-in app session; use the Products and Variants endpoints with the API headers for programmatic catalog changes.
+    tags:
+    - Resource Group
+    source: openapi/rokt-catalog-api-openapi.yml
+  - term: Accounts
+    definition: Register and list managed merchant accounts.
+    tags:
+    - Resource Group
+    source: openapi/rokt-partnerships-api-openapi.yml
+  - term: Taxonomy
+    definition: 'Read the partner-vertical to Rokt-vertical mappings seeded for your parent account. Seeding itself is not self-serve: Rokt creates
+      the rows during onboarding from the category list you supply. Until they exist, register and marketplace-control writes reject with `400`.'
+    tags:
+    - Resource Group
+    source: openapi/rokt-partnerships-api-openapi.yml
+  - term: Controls
+    definition: Marketplace and offer control configuration.
+    tags:
+    - Resource Group
+    source: openapi/rokt-partnerships-api-openapi.yml
+  - term: Layouts
+    definition: Per-merchant layout theme edits.
+    tags:
+    - Resource Group
+    source: openapi/rokt-partnerships-api-openapi.yml
+  - term: Status
+    definition: Pause and resume partnership placements.
+    tags:
+    - Resource Group
+    source: openapi/rokt-partnerships-api-openapi.yml
+  - term: Payout Setup
+    definition: Stripe Connect payout onboarding for managed accounts. **V1 payout model:** Rokt pays the partner-side payout (your platform's
+      revenue share, per your partnership agreement) to your manager account, not to individual managed accounts. Distributing each merchant's
+      portion among your managed accounts is your platform's responsibility.
+    tags:
+    - Resource Group
+    source: openapi/rokt-partnerships-api-openapi.yml
+  - term: Privacy
+    definition: Network privacy and managed-account data deletion requests.
+    tags:
+    - Resource Group
+    source: openapi/rokt-partnerships-api-openapi.yml
+  - term: Operations
+    definition: Poll the status of asynchronous-style operations.
+    tags:
+    - Resource Group
+    source: openapi/rokt-partnerships-api-openapi.yml
+  - term: accounts
+    definition: Account endpoints
+    tags:
+    - Resource Group
+    source: openapi/rokt-query-api-openapi.yml
+  - term: campaigns
+    definition: Campaign endpoints
+    tags:
+    - Resource Group
+    source: openapi/rokt-query-api-openapi.yml
+  - term: transactions
+    definition: Transaction endpoints
+    tags:
+    - Resource Group
+    source: openapi/rokt-query-api-openapi.yml
+  - term: account_model
+    definition: ''
+    tags:
+    - Resource Group
+    source: openapi/rokt-query-api-openapi.yml
+  - term: reporting_request
+    definition: ''
+    tags:
+    - Resource Group
+    source: openapi/rokt-query-api-openapi.yml
+  - term: reporting_response
+    definition: ''
+    tags:
+    - Resource Group
+    source: openapi/rokt-query-api-openapi.yml
+  - term: reporting_metadata
+    definition: ''
+    tags:
+    - Resource Group
+    source: openapi/rokt-query-api-openapi.yml
+  - term: Offers
+    definition: Request the offers to render for a transaction. Called once per page view, with whatever customer and transaction context you
+      can supply — the richer the context, the better the offer. The response carries the session and page identifiers you echo back when reporting
+      events, so keep them for the lifetime of the transaction.
+    tags:
+    - Resource Group
+    source: openapi/rokt-session-api-openapi.yml
+  - term: Events
+    definition: Report what happened to the offers you rendered. Rokt bills and optimizes on these events, so an integration that renders offers
+      without reporting impressions and responses will under-report its own performance and earn less. Events are sent in batches and can partially
+      succeed, so check the per-event results rather than the status code alone.
+    tags:
+    - Resource Group
+    source: openapi/rokt-session-api-openapi.yml
+  - term: Address
+    definition: 'Object declared by the contract with fields: name, address1, address2, city, province, province_code, country, country_code,
+      zip, phone.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/Address
+  - term: BulkCreateSupplierPartnership
+    definition: 'Object declared by the contract with fields: canal_contact_emails.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/BulkCreateSupplierPartnership
+  - term: ConfirmationDetails
+    definition: 'Object declared by the contract with fields: confirmation_number, catalog_order_id, order_id, order_date, order_status, fulfillment_status,
+      tracking_info.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/ConfirmationDetails
+  - term: CreateFulfillment
+    definition: 'Object declared by the contract with fields: name, service, shipment_status, status, tracking_company, tracking_numbers, tracking_urls,
+      order_id, line_items.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/CreateFulfillment
+  - term: CreateOrderLineItem
+    definition: 'Object declared by the contract with fields: variant_id, quantity, price.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/CreateOrderLineItem
+  - term: CreateReturnLineItem
+    definition: 'Object declared by the contract with fields: line_item_id, quantity, customer_note, return_reason.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/CreateReturnLineItem
+  - term: CreateUpdateWebhook
+    definition: 'Object declared by the contract with fields: topic, address.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/CreateUpdateWebhook
+  - term: CreateVariant
+    definition: 'Object declared by the contract with fields: title, price, compare_at_price, inventory_policy, inventory_quantity, option1, option2,
+      option3, sku, position, image_src, weight. (2 more)'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/CreateVariant
+  - term: Customer
+    definition: 'Object declared by the contract with fields: id, email, first_name, last_name, orders_count.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/Customer
+  - term: Error
+    definition: 'Object declared by the contract with fields: message, detail.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/Error
+  - term: ExternalProduct
+    definition: 'Object declared by the contract with fields: id, shop, variants, body_html, handle, image_src, images, options, product_type,
+      updated_at, published_at, status. (8 more)'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/ExternalProduct
+  - term: FieldsToResyncEnum
+    definition: '* `images` - images * `product_title` - product_title * `description` - description * `tags` - tags * `variants` - variants *
+      `vendor` - vendor * `permalink` - permalink'
+    tags:
+    - Enumeration
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/FieldsToResyncEnum
+  - term: Fulfillment
+    definition: 'Object declared by the contract with fields: id, name, order_id, shop, line_items, service, shipment_status, status, tracking_company,
+      tracking_numbers, tracking_urls.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/Fulfillment
+  - term: Image
+    definition: 'Object declared by the contract with fields: id, position, src, display_src, width, height, canal_variant_ids, variant_ids, origin_supplier_image_id.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/Image
+  - term: InventoryPolicyEnum
+    definition: '* `continue` - continue * `deny` - deny'
+    tags:
+    - Enumeration
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/InventoryPolicyEnum
+  - term: LineItem
+    definition: 'Object declared by the contract with fields: id, quantity.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/LineItem
+  - term: LineItemRead
+    definition: 'Object declared by the contract with fields: id, variant_id, quantity, fulfillable_quantity, price, requires_shipping, title,
+      sku.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/LineItemRead
+  - term: MaxShippingQuery
+    definition: 'Object declared by the contract with fields: line_items.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/MaxShippingQuery
+  - term: Order
+    definition: 'Object declared by the contract with fields: id, remote_rid, created_at, shop, customer, email, total_price, currency, name,
+      line_items, fulfillments, billing_address. (8 more)'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/Order
+  - term: OrderCreate
+    definition: 'Object declared by the contract with fields: line_items, customer, order_name, total_tax, note_attributes, shipping_address,
+      billing_address.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/OrderCreate
+  - term: OrderCreateAndCharge
+    definition: 'Object declared by the contract with fields: line_items, customer, order_name, total_tax, note_attributes, partner_name, shipping_details,
+      ppu_transaction_id, payment_details.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/OrderCreateAndCharge
+  - term: OrderCreateAndChargeV1Response
+    definition: 'Object declared by the contract with fields: confirmation_details, line_items, customer, shipping_address, display_metadata,
+      payment_details.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/OrderCreateAndChargeV1Response
+  - term: OrderCreateCustomer
+    definition: 'Object declared by the contract with fields: email, first_name, last_name.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/OrderCreateCustomer
+  - term: OrderInitializeAndChargePaymentDetailsResponse
+    definition: 'Object declared by the contract with fields: payment_status, payment_confirmation_id, statement_descriptor, client_secret, line_item_total_amount,
+      shipping_amount, tax_amount, currency, brand_account_id.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/OrderInitializeAndChargePaymentDetailsResponse
+  - term: OrderInitializeAndChargeResponse
+    definition: 'Object declared by the contract with fields: confirmation_details, line_items, customer, shipping_address, display_metadata,
+      payment_details.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/OrderInitializeAndChargeResponse
+  - term: OrderNoteAttribute
+    definition: 'Object declared by the contract with fields: name, value.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/OrderNoteAttribute
+  - term: OrderShippingDetails
+    definition: 'Object declared by the contract with fields: code, amount, use_override_amount, shipping_address.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/OrderShippingDetails
+  - term: PaginatedExternalProductList
+    definition: 'Object declared by the contract with fields: next, previous, results.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/PaginatedExternalProductList
+  - term: PaginatedFulfillmentList
+    definition: 'Object declared by the contract with fields: next, previous, results.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/PaginatedFulfillmentList
+  - term: PaginatedOrderList
+    definition: 'Object declared by the contract with fields: next, previous, results.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/PaginatedOrderList
+  - term: PaginatedRefundList
+    definition: 'Object declared by the contract with fields: next, previous, results.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/PaginatedRefundList
+  - term: PaginatedRegisteredWebhookList
+    definition: 'Object declared by the contract with fields: next, previous, results.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/PaginatedRegisteredWebhookList
+  - term: PaginatedReturnList
+    definition: 'Object declared by the contract with fields: next, previous, results.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/PaginatedReturnList
+  - term: PaginatedShopList
+    definition: 'Object declared by the contract with fields: next, previous, results.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/PaginatedShopList
+  - term: PaginatedUpsellProductList
+    definition: 'Object declared by the contract with fields: next, previous, results.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/PaginatedUpsellProductList
+  - term: PaginatedVariantList
+    definition: 'Object declared by the contract with fields: next, previous, results.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/PaginatedVariantList
+  - term: PartialAddressPaymentDetails
+    definition: 'Object declared by the contract with fields: billing_address.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/PartialAddressPaymentDetails
+  - term: PatchedFulfillment
+    definition: 'Object declared by the contract with fields: id, name, order_id, shop, line_items, service, shipment_status, status, tracking_company,
+      tracking_numbers, tracking_urls.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/PatchedFulfillment
+  - term: PatchedProduct
+    definition: 'Object declared by the contract with fields: id, shop, variants, body_html, handle, image_src, images, options, product_type,
+      updated_at, published_at, status. (6 more)'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/PatchedProduct
+  - term: PatchedRegisteredWebhook
+    definition: 'Object declared by the contract with fields: id, topic, address, updated_at, created_at.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/PatchedRegisteredWebhook
+  - term: PatchedVariant
+    definition: 'Object declared by the contract with fields: id, shop, inventory_policy, inventory_quantity, inventory_item_cost, option1, option2,
+      option3, position, price, compare_at_price, origin_supplier_currency. (14 more)'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/PatchedVariant
+  - term: PaymentDetailsResponse
+    definition: 'Object declared by the contract with fields: payment_status, payment_confirmation_id, statement_descriptor.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/PaymentDetailsResponse
+  - term: PaymentDetailsWithTokenizedCardResponse
+    definition: 'Object declared by the contract with fields: tokenized_card_response, billing_address.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/PaymentDetailsWithTokenizedCardResponse
+  - term: PostPurchaseOrderCreate
+    definition: 'Object declared by the contract with fields: line_items, customer, order_name, total_tax, note_attributes, partner_name, shipping_details,
+      ppu_transaction_id, payment_details.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/PostPurchaseOrderCreate
+  - term: Product
+    definition: 'Object declared by the contract with fields: id, shop, variants, body_html, handle, image_src, images, options, product_type,
+      updated_at, published_at, status. (6 more)'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/Product
+  - term: PushProduct
+    definition: 'Object declared by the contract with fields: title, body_html, variants, permalink, handle, image_src, images, product_type,
+      tags, vendor, shopify_taxonomy, is_listed. (1 more)'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/PushProduct
+  - term: PushProductStatusEnum
+    definition: '* `active` - active * `draft` - draft * `archived` - archived'
+    tags:
+    - Enumeration
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/PushProductStatusEnum
+  - term: PushProductVariant
+    definition: 'Object declared by the contract with fields: title, price, compare_at_price, inventory_policy, inventory_quantity, option1, option2,
+      option3, sku, position, image_src, weight. (1 more)'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/PushProductVariant
+  - term: Refund
+    definition: 'Object declared by the contract with fields: id, order_id, amount, note, duties, restock, processed_at, refund_line_items, shipping_refund_amount,
+      failed_to_create_refund_line_items.'
+    tags:
+    - Object
+    source: openapi/rokt-catalog-api-openapi.yml#/components/schemas/Refund

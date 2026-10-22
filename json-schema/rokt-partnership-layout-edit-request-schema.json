@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/rokt/main/json-schema/rokt-partnership-layout-edit-request-schema.json",
+  "title": "PartnershipLayoutEditRequest",
+  "description": "Merchant layout customization request. All fields optional; only the keys you\nsend get applied. Rokt validates them, runs the patch-bump, and\nmerges them into the layout's existing configuration.\n\nThese properties customize only the specified layout, including its\nsupported creative formats. They do not affect other layouts or accounts.\n",
+  "x-generated": "2026-10-21",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/rokt-partnerships-api-openapi.yml#/components/schemas/PartnershipLayoutEditRequest",
+  "type": "object",
+  "properties": {
+    "primaryColor": {
+      "type": "string",
+      "pattern": "^#(?:[0-9a-fA-F]{3}){1,2}$",
+      "description": "Hex color (#RGB or"
+    },
+    "backgroundColor": {
+      "type": "string",
+      "pattern": "^#(?:[0-9a-fA-F]{3}){1,2}$",
+      "description": "Hex color applied to the outer/main and body container backgrounds."
+    },
+    "textColor": {
+      "type": "string",
+      "pattern": "^#(?:[0-9a-fA-F]{3}){1,2}$",
+      "description": "Hex color applied to all major text components (header, paragraphs, footer)."
+    },
+    "borderRadius": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 24,
+      "description": "Border radius in pixels applied to outer/main containers and (Overlay only) the close button."
+    },
+    "closeButtonColor": {
+      "type": "string",
+      "pattern": "^#(?:[0-9a-fA-F]{3}){1,2}$",
+      "description": "Hex color applied to the close button (text + border). Overlay only; ignored for Embedded layouts. Once set, this override persists across later edits; the API has no reset path."
+    },
+    "headerBackground": {
+      "type": "string",
+      "pattern": "^#(?:[0-9a-fA-F]{3}){1,2}(?![\\s\\S])",
+      "description": "Hex color for the header bar fill. When unset, Overlay inherits primaryColor and Embedded inherits backgroundColor."
+    },
+    "headerForeground": {
+      "type": "string",
+      "pattern": "^#(?:[0-9a-fA-F]{3}){1,2}(?![\\s\\S])",
+      "description": "Hex color for the header text only, independent of the body paragraphs. Takes precedence over textColor for the header. On Overlay this also recolors the close icon unless closeButtonColor has been set on this layout in this or an earlier request. The API has no reset path for that persistent override."
+    },
+    "buttonBackground": {
+      "type": "string",
+      "pattern": "^#(?:[0-9a-fA-F]{3}){1,2}(?![\\s\\S])",
+      "description": "Hex color for the primary call-to-action button's fill and border. The decline button is unaffected, so the two stay visually distinct."
+    },
+    "buttonForeground": {
+      "type": "string",
+      "pattern": "^#(?:[0-9a-fA-F]{3}){1,2}(?![\\s\\S])",
+      "description": "Hex color for the primary call-to-action button's label text."
+    },
+    "buttonBorderRadius": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 24,
+      "description": "Corner radius in pixels for the call-to-action buttons. Unlike the button colors, this applies to both buttons. Fractions, booleans, and numeric strings are rejected."
+    },
+    "fontFamily": {
+      "type": "string",
+      "enum": [
+        "Arial",
+        "Times New Roman",
+        "Verdana",
+        "Georgia",
+        "Calibri",
+        "Soleil bold",
+        "-apple-system",
+        "system-ui"
+      ],
+      "description": "Font family for all layout text, including call-to-action labels. Must exactly match one of the eight curated names; matching is case-sensitive. Custom or account-installed fonts, quoted names, and CSS fallback stacks are rejected with 422. The name is applied with a fallback; a named face renders when available on the viewer's device. Selecting a family does not upload or download a font file."
+    }
+  }
+}

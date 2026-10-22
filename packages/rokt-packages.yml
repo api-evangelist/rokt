@@ -1,0 +1,91 @@
+generated: '2026-10-21'
+method: searched
+source:
+- https://docs.rokt.com/developer-reference/sdks/release-notes/
+- https://registry.npmjs.org/-/v1/search?text=rokt
+- https://repo1.maven.org/maven2/com/rokt/roktsdk/maven-metadata.xml
+- https://trunk.cocoapods.org/api/v1/pods/Rokt-Widget
+- https://pub.dev/api/packages/rokt_sdk
+- https://api.nuget.org/v3/registration5-semver1/rokt.maui.sdk/index.json
+packages:
+- name: com.rokt:roktsdk
+  registry: maven
+  url: https://central.sonatype.com/artifact/com.rokt/roktsdk
+  language: Kotlin/Java (Android)
+  official: true
+  version: 6.3.1
+  published: '2026-10-15'
+- name: Rokt-Widget
+  registry: cocoapods
+  url: https://cocoapods.org/pods/Rokt-Widget
+  language: Swift (iOS)
+  official: true
+  version: 5.5.5
+  published: '2026-10-14'
+- name: rokt_sdk
+  registry: pub
+  url: https://pub.dev/packages/rokt_sdk
+  language: Dart (Flutter)
+  official: true
+  version: 5.1.2
+  published: '2026-08-28'
+- name: '@rokt/react-native-sdk'
+  registry: npm
+  url: https://www.npmjs.com/package/@rokt/react-native-sdk
+  language: JavaScript (React Native)
+  official: true
+  version: 5.1.2
+  published: '2026-07-29'
+  ownership_audit: metadata names rokt.com
+- name: '@rokt/cordova-plugin-roktsdk'
+  registry: npm
+  url: https://www.npmjs.com/package/@rokt/cordova-plugin-roktsdk
+  language: JavaScript (Cordova)
+  official: true
+  version: 4.7.3
+  published: '2026-07-27'
+  ownership_audit: metadata names rokt.com
+- name: Rokt.Maui.Sdk
+  registry: nuget
+  url: https://www.nuget.org/packages/Rokt.Maui.Sdk
+  language: C# (.NET MAUI)
+  official: false
+  version: 4.9.0
+  published: '2026-07-23'
+  ownership_audit: 'registry metadata names neither the provider''s domain nor its GitHub org: official downgraded (harvest-packages.py --audit)'
+- name: '@rokt/ux-helper-web'
+  registry: npm
+  url: https://www.npmjs.com/package/@rokt/ux-helper-web
+  language: JavaScript (Web)
+  official: true
+  version: 2.0.0
+  published: '2026-08-19'
+  ownership_audit: metadata names rokt.com
+- name: '@rokt-mobile/cordova-plugin-roktsdk'
+  registry: npm
+  url: https://www.npmjs.com/package/@rokt-mobile/cordova-plugin-roktsdk
+  language: JavaScript (Cordova)
+  official: true
+  version: 3.13.0
+  published: '2023-05-18'
+  note: Older scope for the Cordova plugin (same ROKT/rokt-sdk-cordova repo); superseded by @rokt/cordova-plugin-roktsdk.
+  ownership_audit: metadata names rokt.com
+- name: Rokt Web SDK launcher
+  registry: cdn
+  url: https://apps.rokt.com/wsdk/integrations/launcher.js
+  language: JavaScript (Web)
+  official: true
+  version: null
+  published: null
+  note: Unpinned CDN loader that floats to latest; the docs release-notes list Web SDK 2.6021.0 (30 May 2025) as the newest entry.
+- name: '@mparticle/web-rokt-kit'
+  registry: npm
+  url: https://www.npmjs.com/package/@mparticle/web-rokt-kit
+  language: JavaScript (Web)
+  official: true
+  version: 1.36.1
+  published: '2026-08-27'
+  note: mParticle (a Rokt company, see www.rokt.com/rokt-mparticle) integration kit for Rokt.
+  ownership_audit: metadata names rokt.com
+note: No server-side REST client libraries found on npm, PyPI, Maven or NuGet; all first-party packages are client-side placement SDKs. PyPI has
+  no "rokt" package (404).

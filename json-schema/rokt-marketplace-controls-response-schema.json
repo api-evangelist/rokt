@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/rokt/main/json-schema/rokt-marketplace-controls-response-schema.json",
+  "title": "MarketplaceControlsResponse",
+  "x-generated": "2026-10-21",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/rokt-partnerships-api-openapi.yml#/components/schemas/MarketplaceControlsResponse",
+  "type": "object",
+  "properties": {
+    "account_id": {
+      "type": "string"
+    },
+    "marketplace_controls_list": {
+      "type": "object",
+      "description": "The merchant's controls record. Raw Rokt-taxonomy vertical IDs\nare not exposed; use the top-level `translated_verticals`\ninstead.\n",
+      "properties": {
+        "marketplace_controls_list_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "domains": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PartnershipDomainControl"
+          }
+        },
+        "content_hash": {
+          "type": "string",
+          "description": "Optimistic-concurrency token. Pass it back as the `contentHash` field of your next PUT."
+        },
+        "layouts": {
+          "type": "array",
+          "description": "Present when the controls record carries layout references.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "layout_id": {
+                "type": "string"
+              },
+              "surface": {
+                "type": "string"
+              },
+              "page_id": {
+                "type": "string"
+              },
+              "page_identifier": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "translated_verticals": {
+      "type": "array",
+      "description": "Effective policy for every sub-vertical mapped in your partner\ntaxonomy, one entry per mapping row. `vertical_id` is **your**\nsub-vertical ID, not a Rokt ID.\n",
+      "items": {
+        "type": "object",
+        "properties": {
+          "vertical_id": {
+            "type": "integer",
+            "description": "Your partner-taxonomy sub-vertical ID."
+          },
+          "policy": {
+            "type": "string",
+            "enum": [
+              "Allow",
+              "Block"
+            ]
+          },
+          "position_1_policy": {
+            "type": "string",
+            "enum": [
+              "Allow",
+              "Block"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "PartnershipDomainControl": {
+      "type": "object",
+      "required": [
+        "domain",
+        "policy"
+      ],
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "policy": {
+          "type": "string",
+          "enum": [
+            "Allow",
+            "Block"
+          ]
+        }
+      }
+    }
+  }
+}

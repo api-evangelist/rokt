@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/rokt/main/json-schema/rokt-reporting-request-external-schema.json",
+  "title": "ReportingRequestExternal",
+  "description": "Reporting request model.",
+  "x-generated": "2026-10-21",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/rokt-query-api-openapi.yml#/components/schemas/ReportingRequestExternal",
+  "properties": {
+    "timezoneVariation": {
+      "type": "string",
+      "title": "Timezonevariation",
+      "default": "America/New_York"
+    },
+    "currencyCode": {
+      "type": "string",
+      "title": "Currencycode",
+      "default": "USD"
+    },
+    "startDate": {
+      "type": "string",
+      "title": "Startdate",
+      "default": "2025-07-01T13:31:16.821359"
+    },
+    "endDate": {
+      "type": "string",
+      "title": "Enddate",
+      "default": "2025-07-08T13:31:16.821386"
+    },
+    "dimensionFilters": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Dimensionfilters",
+      "default": {}
+    },
+    "limit": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Limit"
+    },
+    "metrics": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "title": "Metrics"
+    },
+    "dimensions": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Dimensions",
+      "default": []
+    },
+    "orderBys": {
+      "anyOf": [
+        {
+          "items": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Orderbys",
+      "default": []
+    },
+    "interval": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Interval"
+    }
+  },
+  "type": "object",
+  "required": [
+    "metrics"
+  ]
+}

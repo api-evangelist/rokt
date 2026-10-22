@@ -1,7 +1,13 @@
 aid: rokt
+
 name: Rokt
-description: Rokt is an eCommerce technology platform that uses AI and machine learning to serve personalized non-endemic offers and ads during transaction moments. APIs cover ecommerce placement integrations, conversion event tracking, reporting and analytics, custom audience management, and data governance.
+
+description: Rokt is an eCommerce technology platform that uses AI and machine learning to serve personalized non-endemic offers and ads during
+  transaction moments. APIs cover ecommerce placement integrations, conversion event tracking, reporting and analytics, custom audience management,
+  and data governance.
+
 type: Index
+
 deliveryModel:
   model: saas
   open_source: false
@@ -13,6 +19,7 @@ deliveryModel:
   - pricing
   generated: '2026-08-28'
   method: derived
+
 accessModel:
   pricing: unknown
   onboarding: unknown
@@ -24,144 +31,347 @@ accessModel:
   source: []
   generated: '2026-07-22'
   method: derived
+
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/rokt.png
+
 url: https://raw.githubusercontent.com/api-evangelist/rokt/refs/heads/main/apis.yml
+
 created: '2026-06-13'
-modified: '2026-06-13'
+
+modified: '2026-10-21'
+
 specificationVersion: '0.23'
+
 tags:
-  - E-Commerce
-  - Advertising
-  - Transaction Moment
-  - Personalization
-  - Offers
-  - Analytics
-  - Reporting
+- E-Commerce
+- Advertising
+- Transaction Moment
+- Personalization
+- Offers
+- Analytics
+- Reporting
+
 tags_raw:
-  - eCommerce
-  - Advertising
-  - Transaction Moment
-  - Personalization
-  - Offers
-  - Analytics
-  - Reporting
-apis:
-  - name: Rokt Query API
-    description: Comprehensive reporting API for querying account and campaign performance data with flexible filtering, metrics selection, and date range specification.
-    humanURL: https://docs.rokt.com/developers/api-reference/reporting/query-api/
-    baseURL: https://api.rokt.com
-    tags:
-      - Reporting
-      - Analytics
-      - Performance
-    properties:
-      - type: Documentation
-        url: https://docs.rokt.com/developers/api-reference/reporting/query-api/
-      - type: OpenAPI
-        url: https://docs.rokt.com/openapi/
-  - name: Rokt Event API
-    description: Enables sending conversion data and client events to Rokt to close the attribution loop for campaign performance tracking.
-    humanURL: https://docs.rokt.com/developers/integration-guides/getting-started/advertisers/ads-events-api-integration/
-    baseURL: https://api.rokt.com
-    tags:
-      - Event
-      - Conversion
-      - Attribution
-    tags_raw:
-      - Events
-      - Conversions
-      - Attribution
-    properties:
-      - type: Documentation
-        url: https://docs.rokt.com/developers/integration-guides/getting-started/advertisers/ads-events-api-integration/
-  - name: Rokt Cart API
-    description: Supports integration of Rokt into ecommerce transaction flows, enabling placement of personalized offers during the checkout and confirmation moment.
-    humanURL: https://docs.rokt.com/developers/api-reference/overview/
-    baseURL: https://api.rokt.com
-    tags:
-      - E-Commerce
-      - Cart
-      - Placements
-    tags_raw:
-      - eCommerce
-      - Cart
-      - Placements
-    properties:
-      - type: Documentation
-        url: https://docs.rokt.com/developers/api-reference/overview/
-  - name: Rokt Custom Audience Import API
-    description: Allows importing custom audience segments into Rokt for targeted offer delivery and campaign personalization.
-    humanURL: https://docs.rokt.com/developers/api-reference/overview/
-    baseURL: https://api.rokt.com
-    tags:
-      - Audiences
-      - Segmentation
-      - Targeting
-    properties:
-      - type: Documentation
-        url: https://docs.rokt.com/developers/api-reference/overview/
-  - name: Rokt Data Deletion API
-    description: Manages data removal requests within Rokt systems to support privacy compliance and data governance requirements.
-    humanURL: https://docs.rokt.com/developers/api-reference/overview/
-    baseURL: https://api.rokt.com
-    tags:
-      - Privacy
-      - Data Governance
-      - Compliance
-    properties:
-      - type: Documentation
-        url: https://docs.rokt.com/developers/api-reference/overview/
-  - name: Rokt Nurture Unsubscribe API
-    description: Handles unsubscribe management for Rokt nurture campaigns, enabling partners to honor customer opt-outs.
-    humanURL: https://docs.rokt.com/developers/api-reference/overview/
-    baseURL: https://api.rokt.com
-    tags:
-      - Unsubscribe
-      - Nurture
-      - Compliance
-    properties:
-      - type: Documentation
-        url: https://docs.rokt.com/developers/api-reference/overview/
-  - name: Rokt Partnerships API
-    description: Supports third-party integrations including mParticle for connecting Rokt with partner data platforms.
-    humanURL: https://docs.rokt.com/developers/api-reference/overview/
-    baseURL: https://api.rokt.com
-    tags:
-      - Partnerships
-      - Integration
-      - mParticle
-    tags_raw:
-      - Partnerships
-      - Integrations
-      - mParticle
-    properties:
-      - type: Documentation
-        url: https://docs.rokt.com/developers/api-reference/overview/
-common:
-  - type: VulnerabilityDisclosure
-    url: security/rokt-vulnerability-disclosure.yml
-  - type: DomainSecurity
-    url: security/rokt-domain-security.yml
-  - type: Website
-    url: https://www.rokt.com
-  - type: Documentation
-    url: https://docs.rokt.com
-  - type: GitHubOrg
-    url: https://github.com/ROKT
-  - type: LinkedIn
-    url: https://www.linkedin.com/company/rokt
-  - type: Blog
-    url: https://www.rokt.com/blog/
-  - type: Pricing
-    url: https://www.rokt.com/products/product-overview
-  - type: X
-    url: https://x.com/rokt
-  - type: Plans
-    url: plans/rokt-plans-pricing.yml
-  - type: RateLimits
-    url: rate-limits/rokt-rate-limits.yml
-  - type: FinOps
-    url: finops/rokt-finops.yml
+- eCommerce
+- Advertising
+- Transaction Moment
+- Personalization
+- Offers
+- Analytics
+- Reporting
+
 maintainers:
-  - FN: Kin Lane
-    email: kin@apievangelist.com
+- FN: Kin Lane
+  email: kin@apievangelist.com
+
+common:
+- type: AgenticAccess
+  url: agentic-access/rokt-agentic-access.yml
+- type: Spectral
+  url: rules/rokt-rules.yml
+- type: JSONLD
+  url: json-ld/rokt-context.jsonld
+- type: Vocabulary
+  url: vocabulary/rokt-vocabulary.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: DataModel
+  url: data-model/rokt-data-model.yml
+- type: Components
+  url: components/rokt-components.yml
+- type: ChangeLog
+  url: changelog/rokt-changelog.yml
+- type: Idempotency
+  url: conventions/rokt-conventions.yml
+- type: Conventions
+  url: conventions/rokt-conventions.yml
+- type: Sandbox
+  url: sandbox/rokt-sandbox.yml
+- type: Deprecation
+  url: lifecycle/rokt-lifecycle.yml
+- type: Lifecycle
+  url: lifecycle/rokt-lifecycle.yml
+- type: ErrorCatalog
+  url: errors/rokt-problem-types.yml
+- type: Conformance
+  url: conformance/rokt-conformance.yml
+- type: Overlay
+  url: overlays/rokt-catalog-overlay.yaml
+- type: LLMsTxt
+  url: llms/rokt-llms.txt
+- type: LLMsTxt
+  url: llms/rokt-ecommerce-sdk-llms.txt
+- type: SecurityTxt
+  url: well-known/rokt-security.txt
+- type: SecurityTxt
+  url: well-known/rokt-api-security.txt
+- type: WellKnown
+  url: well-known/rokt-well-known.yml
+- type: Hosts
+  url: hosts/rokt-hosts.yml
+- type: IntegrationEdges
+  url: integrations/rokt-integration-edges.yml
+- type: Vendors
+  url: vendors/rokt-vendors.yml
+- type: SDKs
+  url: packages/rokt-packages.yml
+- type: Packages
+  url: packages/rokt-packages.yml
+- type: Authentication
+  url: authentication/rokt-authentication.yml
+- type: VulnerabilityDisclosure
+  url: security/rokt-vulnerability-disclosure.yml
+- type: DomainSecurity
+  url: security/rokt-domain-security.yml
+- type: Website
+  url: https://www.rokt.com/
+- type: Documentation
+  url: https://docs.rokt.com/
+- type: GitHubOrg
+  url: https://github.com/ROKT
+- type: LinkedIn
+  url: https://www.linkedin.com/company/rokt
+- type: Blog
+  url: https://www.rokt.com/blog
+- type: Pricing
+  url: https://www.rokt.com/products/product-overview
+- type: X
+  url: https://x.com/rokt
+- type: RateLimits
+  url: rate-limits/rokt-rate-limits.yml
+- type: FinOps
+  url: finops/rokt-finops.yml
+- type: APIReference
+  url: https://docs.rokt.com/developer-reference/
+- type: GettingStarted
+  url: https://docs.rokt.com/developer-reference/apis/partnerships-api/quickstart/
+- type: ChangeLog
+  url: https://docs.rokt.com/developer-reference/sdks/release-notes/
+- type: Support
+  url: https://www.rokt.com/contact-us
+- type: Login
+  url: https://my.rokt.com/
+- type: TermsOfService
+  url: https://www.rokt.com/policies/terms-for-advertisers
+- type: PrivacyPolicy
+  url: https://www.rokt.com/policies/privacy-policy
+- type: Security
+  url: https://www.rokt.com/rokt-mparticle/security
+- type: Newsroom
+  url: https://www.rokt.com/press
+- type: Careers
+  url: https://www.rokt.com/company/careers
+- type: LlmsTxt
+  url: https://docs.rokt.com/llms.txt
+
+apis:
+- name: Rokt Query API
+  description: Comprehensive reporting API for querying account and campaign performance data with flexible filtering, metrics selection, and
+    date range specification.
+  humanURL: https://docs.rokt.com/developer-reference/apis/reporting-apis/query-api/
+  baseURL: https://api.rokt.com
+  tags:
+  - Reporting
+  - Analytics
+  - Performance
+  properties:
+  - type: OpenAPI
+    url: openapi/rokt-query-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://docs.rokt.com/redocusaurus/query-api.yaml
+  - type: Documentation
+    url: https://docs.rokt.com/developer-reference/apis/reporting-apis/query-api/
+  - type: APIReference
+    url: https://docs.rokt.com/developer-reference/apis/reporting-apis/query-api/api-reference/
+  - type: JSONSchema
+    url: json-schema/rokt-reporting-request-external-schema.json
+  - type: JSONSchema
+    url: json-schema/rokt-account-external-schema.json
+  - type: JSONSchema
+    url: json-schema/rokt-reporting-metadata-external-schema.json
+  - type: JSONSchema
+    url: json-schema/rokt-reporting-response-external-schema.json
+  aid: rokt:rokt-query-api
+- name: Rokt Event API
+  description: Enables sending conversion data and client events to Rokt to close the attribution loop for campaign performance tracking.
+  humanURL: https://docs.rokt.com/integration-guides/ads/conversion-tracking/ads-events-api/
+  baseURL: https://api.rokt.com
+  tags:
+  - Event
+  - Conversion
+  - Attribution
+  tags_raw:
+  - Events
+  - Conversions
+  - Attribution
+  properties:
+  - type: Documentation
+    url: https://docs.rokt.com/integration-guides/ads/conversion-tracking/ads-events-api/
+  aid: rokt:rokt-event-api
+- name: Rokt Cart API
+  description: Supports integration of Rokt into ecommerce transaction flows, enabling placement of personalized offers during the checkout and
+    confirmation moment.
+  humanURL: https://docs.rokt.com/developer-reference/apis/ecommerce/cart-api/
+  baseURL: https://api.rokt.com
+  tags:
+  - E-Commerce
+  - Cart
+  - Placements
+  tags_raw:
+  - eCommerce
+  - Cart
+  - Placements
+  properties:
+  - type: Documentation
+    url: https://docs.rokt.com/developer-reference/apis/ecommerce/cart-api/
+  aid: rokt:rokt-cart-api
+- name: Rokt Custom Audience Import API
+  description: Allows importing custom audience segments into Rokt for targeted offer delivery and campaign personalization.
+  humanURL: https://docs.rokt.com/integration-guides/ads/audiences/ads-audience-api-integration/
+  baseURL: https://api.rokt.com
+  tags:
+  - Audiences
+  - Segmentation
+  - Targeting
+  properties:
+  - type: Documentation
+    url: https://docs.rokt.com/integration-guides/ads/audiences/ads-audience-api-integration/
+  aid: rokt:rokt-custom-audience-import-api
+- name: Rokt Data Deletion API
+  description: Manages data removal requests within Rokt systems to support privacy compliance and data governance requirements.
+  humanURL: https://docs.rokt.com/developer-reference/apis/data-deletion-api/
+  baseURL: https://api.rokt.com
+  tags:
+  - Privacy
+  - Data Governance
+  - Compliance
+  properties:
+  - type: Documentation
+    url: https://docs.rokt.com/developer-reference/apis/data-deletion-api/
+  aid: rokt:rokt-data-deletion-api
+- name: Rokt Nurture Unsubscribe API
+  description: Handles unsubscribe management for Rokt nurture campaigns, enabling partners to honor customer opt-outs.
+  humanURL: https://docs.rokt.com/developer-reference/apis/unsubscribe-import/
+  baseURL: https://api.data.rokt.com
+  tags:
+  - Unsubscribe
+  - Nurture
+  - Compliance
+  properties:
+  - type: Documentation
+    url: https://docs.rokt.com/developer-reference/apis/unsubscribe-import/
+  aid: rokt:rokt-nurture-unsubscribe-api
+- name: Rokt Partnerships API
+  description: 'Partner-facing REST API (preview) for white-label onboarding of merchant accounts onto the Rokt network: register merchants, configure
+    marketplace and offer controls, and manage placement status.'
+  humanURL: https://docs.rokt.com/developer-reference/apis/partnerships-api/
+  baseURL: https://accounts.rokt.com
+  tags:
+  - Partnerships
+  - Integration
+  - mParticle
+  tags_raw:
+  - Partnerships
+  - Integrations
+  - mParticle
+  properties:
+  - type: OpenAPI
+    url: openapi/rokt-partnerships-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://docs.rokt.com/redocusaurus/partnerships.yaml
+  - type: Documentation
+    url: https://docs.rokt.com/developer-reference/apis/partnerships-api/
+  - type: APIReference
+    url: https://docs.rokt.com/developer-reference/apis/partnerships-api/api-reference/
+  - type: JSONSchema
+    url: json-schema/rokt-partnership-layout-edit-request-schema.json
+  - type: JSONSchema
+    url: json-schema/rokt-register-partnership-request-schema.json
+  - type: JSONSchema
+    url: json-schema/rokt-marketplace-controls-response-schema.json
+  - type: JSONSchema
+    url: json-schema/rokt-operation-response-schema.json
+  - type: JSONSchema
+    url: json-schema/rokt-switch-partnership-page-layout-response-schema.json
+  - type: JSONSchema
+    url: json-schema/rokt-switch-partnership-page-layout-request-schema.json
+  aid: rokt:rokt-partnerships-api
+- name: Rokt Catalog API
+  description: 'REST Admin API for the Rokt Catalog (formerly Canal) product: manage products, variants, orders, fulfillments, refunds and returns
+    between brands and storefronts.'
+  humanURL: https://docs.rokt.com/developer-reference/apis/ecommerce/catalog-api/
+  baseURL: https://api.shopcanal.com/platform
+  tags:
+  - E-Commerce
+  - Catalog
+  - Orders
+  properties:
+  - type: OpenAPI
+    url: openapi/rokt-catalog-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://docs.rokt.com/redocusaurus/catalog-api.yaml
+  - type: Documentation
+    url: https://docs.rokt.com/developer-reference/apis/ecommerce/catalog-api/
+  - type: APIReference
+    url: https://docs.rokt.com/developer-reference/apis/ecommerce/catalog-api/api-reference/
+  - type: JSONSchema
+    url: json-schema/rokt-variant-schema.json
+  - type: JSONSchema
+    url: json-schema/rokt-patched-variant-schema.json
+  - type: JSONSchema
+    url: json-schema/rokt-order-schema.json
+  - type: JSONSchema
+    url: json-schema/rokt-external-product-schema.json
+  - type: JSONSchema
+    url: json-schema/rokt-product-schema.json
+  - type: JSONSchema
+    url: json-schema/rokt-patched-product-schema.json
+  aid: rokt:rokt-catalog-api
+- name: Rokt Session API
+  description: Server-to-server API for requesting Rokt offers and reporting the events that follow, replacing client-side SDK placement for partners
+    who render offers themselves.
+  humanURL: https://docs.rokt.com/developer-reference/apis/session-api/api-reference/
+  baseURL: https://api.rokt.com
+  tags:
+  - Offers
+  - Events
+  - Server-to-Server
+  properties:
+  - type: OpenAPI
+    url: openapi/rokt-session-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://docs.rokt.com/redocusaurus/session-api.yaml
+  - type: APIReference
+    url: https://docs.rokt.com/developer-reference/apis/session-api/api-reference/
+  - type: JSONSchema
+    url: json-schema/rokt-offers-request-schema.json
+  - type: JSONSchema
+    url: json-schema/rokt-offers-response-schema.json
+  - type: JSONSchema
+    url: json-schema/rokt-events-response-schema.json
+  - type: JSONSchema
+    url: json-schema/rokt-events-request-schema.json
+  aid: rokt:rokt-session-api
+
+x-coverage:
+  state: covered
+  reason: identity-verified
+  detail: Website and docs hosts verified by GET 2026-10-21; per-API humanURLs moved to current docs.rokt.com/developer-reference paths (old /developers/
+    paths redirect).
+  evidence:
+  - url: https://www.rokt.com/
+    status: 200
+  - url: https://docs.rokt.com/
+    status: 200
+  - url: https://docs.rokt.com/developer-reference/
+    status: 200
+x-enrichment:
+  date: '2026-10-21'
+  status: enriched
+  artifacts_added: 60
+  pass: modular-v1
+  engine: identity=anthropic,contract=anthropic,surfaces=anthropic,docs=anthropic,regulatory=anthropic

@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/rokt/main/json-schema/rokt-switch-partnership-page-layout-response-schema.json",
+  "title": "SwitchPartnershipPageLayoutResponse",
+  "x-generated": "2026-10-21",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/rokt-partnerships-api-openapi.yml#/components/schemas/SwitchPartnershipPageLayoutResponse",
+  "type": "object",
+  "required": [
+    "status",
+    "page"
+  ],
+  "properties": {
+    "status": {
+      "type": "string",
+      "description": "Always `ok` on success."
+    },
+    "page": {
+      "type": "object",
+      "required": [
+        "surface",
+        "page_id",
+        "layout_id",
+        "page_identifier"
+      ],
+      "properties": {
+        "surface": {
+          "type": "string",
+          "enum": [
+            "confirmation",
+            "tracking",
+            "returns"
+          ]
+        },
+        "page_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unchanged by the switch."
+        },
+        "layout_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "The layout now active on the page. Use this value for subsequent\ntheme edits at `PATCH /v1/partnership/accounts/{account_id}/layouts/{layout_id}`;\na `layout_id` captured before the switch refers to the\ninactive layout.\n"
+        },
+        "page_identifier": {
+          "type": "string",
+          "description": "Unchanged by the switch; your SDK code keeps passing the same\nidentifier into `selectPlacements`.\n"
+        }
+      }
+    }
+  }
+}

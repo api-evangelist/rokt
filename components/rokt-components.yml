@@ -1,0 +1,22 @@
+generated: '2026-10-21'
+method: searched
+source:
+- https://docs.rokt.com/developer-reference/apis/partnerships-api/sdk-integration/
+- https://docs.rokt.com/developer-reference/sdks/release-notes/
+families:
+- family: Rokt placements (Web SDK)
+  kind: embedded offer/placement surfaces rendered into partner checkout and confirmation pages
+  loader: https://apps.rokt.com/wsdk/integrations/launcher.js
+  api:
+  - createLauncher
+  - selectPlacements
+  anchor: <div id="rokt-container"></div> (embedded placements)
+  docs: https://docs.rokt.com/developer-reference/apis/partnerships-api/sdk-integration/
+- family: Rokt UX Helper
+  kind: open-source rendering library for Rokt layouts
+  loader: '@rokt/ux-helper-web (npm); RoktUXHelper (iOS)'
+  docs: https://www.npmjs.com/package/@rokt/ux-helper-web
+- family: Native mobile placements
+  kind: overlay, bottomsheet and embedded layouts in mobile SDKs
+  loader: Android, iOS, Flutter, React Native, Cordova and MAUI SDKs (see packages/)
+  docs: https://docs.rokt.com/developer-reference/sdks/release-notes/

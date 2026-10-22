@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/rokt/main/json-schema/rokt-reporting-response-external-schema.json",
+  "title": "ReportingResponseExternal",
+  "description": "Result model.",
+  "x-generated": "2026-10-21",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/rokt-query-api-openapi.yml#/components/schemas/ReportingResponseExternal",
+  "properties": {
+    "data": {
+      "items": {
+        "type": "object"
+      },
+      "type": "array",
+      "title": "Data"
+    },
+    "accountId": {
+      "type": "string",
+      "title": "Accountid"
+    },
+    "queryTimeMs": {
+      "type": "integer",
+      "title": "Querytimems"
+    }
+  },
+  "type": "object",
+  "required": [
+    "data",
+    "accountId",
+    "queryTimeMs"
+  ]
+}

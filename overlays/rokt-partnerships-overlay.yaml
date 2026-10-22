@@ -1,0 +1,73 @@
+overlay: 1.0.0
+info:
+  title: Rokt Rokt Partnerships API - API Evangelist overlay
+  version: 1.0.0
+extends: openapi/rokt-partnerships-api-openapi.yml
+actions:
+- target: $.info
+  update:
+    x-api-evangelist:
+      provider: rokt
+      profiled: '2026-10-21'
+      llms: llms/rokt-llms.txt
+      mcp: mcp/rokt-mcp.yml
+- target: $.paths['/v1/accounts/register/partnership'].post
+  update:
+    x-mcp-tool: rokt_partnerships_register_partnership
+    x-agent-safety: write
+- target: $.paths['/v1/partnership/accounts'].get
+  update:
+    x-mcp-tool: rokt_partnerships_list_managed_accounts
+    x-agent-safety: read
+- target: $.paths['/v1/partnership/vertical-mappings'].get
+  update:
+    x-mcp-tool: rokt_partnerships_list_vertical_mappings
+    x-agent-safety: read
+- target: $.paths['/v1/partnership/accounts/{account_id}/marketplacecontrolslists'].get
+  update:
+    x-mcp-tool: rokt_partnerships_get_marketplace_controls
+    x-agent-safety: read
+- target: $.paths['/v1/partnership/accounts/{account_id}/marketplacecontrolslists'].put
+  update:
+    x-mcp-tool: rokt_partnerships_put_marketplace_controls
+    x-agent-safety: write
+- target: $.paths['/v1/partnership/accounts/{account_id}/layouts/{layout_id}'].patch
+  update:
+    x-mcp-tool: rokt_partnerships_patch_partnership_layout
+    x-agent-safety: write
+- target: $.paths['/v1/partnership/accounts/{account_id}/pages'].post
+  update:
+    x-mcp-tool: rokt_partnerships_add_partnership_pages
+    x-agent-safety: write
+- target: $.paths['/v1/partnership/accounts/{account_id}/pages/{page_id}'].put
+  update:
+    x-mcp-tool: rokt_partnerships_switch_partnership_page_layout
+    x-agent-safety: write
+- target: $.paths['/v1/partnership/accounts/{account_id}/status'].get
+  update:
+    x-mcp-tool: rokt_partnerships_get_partnership_status
+    x-agent-safety: read
+- target: $.paths['/v1/partnership/accounts/{account_id}/status'].put
+  update:
+    x-mcp-tool: rokt_partnerships_put_partnership_status
+    x-agent-safety: write
+- target: $.paths['/v1/partnership/accounts/{account_id}/payout-setup'].post
+  update:
+    x-mcp-tool: rokt_partnerships_post_payout_setup
+    x-agent-safety: write
+- target: $.paths['/v1/partnership/accounts/{account_id}/payout-setup/status'].get
+  update:
+    x-mcp-tool: rokt_partnerships_get_payout_setup_status
+    x-agent-safety: read
+- target: $.paths['/v1/partnership/network-privacy-requests'].post
+  update:
+    x-mcp-tool: rokt_partnerships_post_network_privacy_request
+    x-agent-safety: write
+- target: $.paths['/v1/partnership/accounts/{account_id}/data-deletion-requests'].post
+  update:
+    x-mcp-tool: rokt_partnerships_post_account_data_deletion_request
+    x-agent-safety: destructive
+- target: $.paths['/v1/partnership/operations/{operation_id}'].get
+  update:
+    x-mcp-tool: rokt_partnerships_get_operation
+    x-agent-safety: read

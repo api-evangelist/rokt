@@ -1,0 +1,23 @@
+generated: '2026-10-21'
+method: searched
+source:
+- https://docs.rokt.com/developer-reference/apis/partnerships-api/concepts/dry-run/
+- https://docs.rokt.com/developer-reference/apis/partnerships-api/sdk-integration/
+- https://docs.rokt.com/developer-reference/apis/partnerships-api/quickstart/
+description: 'Rokt documents no separate sandbox host or test keys for its APIs. The Partnerships API offers a dry-run
+  mode (?dry_run=true) on a subset of writes that runs auth and validation without persisting; the Web SDK launcher
+  takes a `sandbox: true` parameter in createLauncher for test placements. Layout rendering is to be tested "with
+  real updates on a stage merchant".'
+docs: https://docs.rokt.com/developer-reference/apis/partnerships-api/concepts/dry-run/
+modes:
+- name: dry-run
+  param: dry_run=true
+  supported_operations:
+  - putMarketplaceControls
+  - putPartnershipStatus
+  - postAccountDataDeletionRequest
+  caveat: A successful dry run does not reserve resources or guarantee that a later real write succeeds.
+- name: Web SDK sandbox flag
+  param: 'createLauncher({ sandbox: true })'
+  source: https://docs.rokt.com/developer-reference/apis/partnerships-api/sdk-integration/
+test_values: []

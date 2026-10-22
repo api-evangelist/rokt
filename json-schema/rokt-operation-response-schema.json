@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/rokt/main/json-schema/rokt-operation-response-schema.json",
+  "title": "OperationResponse",
+  "x-generated": "2026-10-21",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/rokt-partnerships-api-openapi.yml#/components/schemas/OperationResponse",
+  "type": "object",
+  "properties": {
+    "operation_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "failed"
+      ]
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "sync",
+        "async"
+      ]
+    },
+    "operation_type": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time",
+      "description": "When the operation reached a terminal state. Null while pending/in-progress."
+    },
+    "retry_count": {
+      "type": "integer",
+      "description": "Number of retries the server has performed against the downstream service."
+    },
+    "next_retry_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time",
+      "description": "For transient failures, when the next retry is scheduled."
+    },
+    "response_body": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "For completed operations, the response payload from the original write call."
+    },
+    "error": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "For failed operations, the last error message captured."
+    },
+    "request_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    }
+  }
+}

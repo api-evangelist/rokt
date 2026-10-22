@@ -1,0 +1,32 @@
+generated: '2026-10-21'
+method: searched
+source:
+- https://docs.rokt.com/developer-reference/sdks/release-notes/
+- https://docs.rokt.com/developer-reference/apis/partnerships-api/
+versioning:
+  scheme: URL path major version; SDKs use semantic versions
+  apis:
+  - api: Partnerships API
+    path_version: v1
+    contract_version: 0.1.0-preview
+  - api: Query API
+    path_version: v1
+    contract_version: 1.0.0
+  - api: Session API
+    path_version: v2
+    contract_version: 2.0.0
+  - api: Events API
+    note: docs publish separate Events API v1 and Events API v2 pages
+  policy: null
+  note: No written API versioning or support policy found in the docs.
+deprecation:
+  policy: null
+  headers: null
+  signals:
+  - Cordova SDK release notes are titled "Cordova SDK version (legacy)".
+  - The Partnerships API contract is versioned 0.1.0-preview and the auth page says a self-serve credential option
+    is "coming in a future release".
+  deprecated_operations: []
+status_page: null
+sla: null
+note: No public status page, SLA or deprecation policy was found in the docs.

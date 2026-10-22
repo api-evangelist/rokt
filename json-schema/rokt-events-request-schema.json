@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/rokt/main/json-schema/rokt-events-request-schema.json",
+  "title": "EventsRequest",
+  "x-generated": "2026-10-21",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/rokt-session-api-openapi.yml#/components/schemas/EventsRequest",
+  "type": "object",
+  "required": [
+    "channel",
+    "single_session",
+    "events"
+  ],
+  "properties": {
+    "channel": {
+      "$ref": "#/$defs/Channel"
+    },
+    "single_session": {
+      "type": "boolean",
+      "description": "Send `true`. Links every event in the batch to the session named by\neach event's `session_id`.\n"
+    },
+    "events": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/Event"
+      }
+    }
+  },
+  "$defs": {
+    "Channel": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "description": "Identifies the integration type. Server-to-server callers send `s2s`.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "s2s"
+          ]
+        }
+      }
+    },
+    "Event": {
+      "type": "object",
+      "required": [
+        "event_type",
+        "instance_id",
+        "session_id",
+        "timestamp",
+        "data"
+      ],
+      "properties": {
+        "event_type": {
+          "type": "string",
+          "description": "What happened. `impression`, `viewed`, and `signal_response` are\nexpected from every server-to-server integration; send `dismissal`\nas well if your UI lets a customer close an offer:\n\n- `impression` — the element rendered and is visible to the customer.\n  Send one for each element that renders. If you delay appearance,\n  raise it when the element is unhidden.\n- `viewed` — the creative was at least 50% visible for one continuous\n  second, matching the [IAB](https://www.iab.com/) viewability\n  definition. Exclude bot traffic and any other invalid activity.\n  Send one for each creative that becomes viewable.\n- `signal_response` — the customer engaged with a response option.\n  Send one for each interaction.\n- `dismissal` — the customer dismissed the offer without engaging\n  with a response option, for example by closing it. Send one per\n  dismissed element.\n",
+          "enum": [
+            "impression",
+            "viewed",
+            "signal_response",
+            "dismissal"
+          ]
+        },
+        "instance_id": {
+          "type": "string",
+          "description": "A UUID you generate for this event, used to deduplicate retries. Send\nthe same value if you resend the same event.\n"
+        },
+        "session_id": {
+          "type": "string",
+          "description": "The `session_id` from the offers response."
+        },
+        "timestamp": {
+          "type": "integer",
+          "format": "int64",
+          "description": "When the event occurred, in Unix epoch milliseconds."
+        },
+        "data": {
+          "$ref": "#/$defs/EventData"
+        }
+      }
+    },
+    "EventData": {
+      "type": "object",
+      "required": [
+        "parent_id",
+        "page_instance_guid",
+        "token"
+      ],
+      "properties": {
+        "parent_id": {
+          "type": "string",
+          "description": "The `instance_guid` of the element this event is about, taken from the\noffers response — the creative's for an impression, a response\noption's for a response.\n\nEcho the value verbatim. It may carry a type prefix such as\n`ad:<uuid>`; send it exactly as returned.\n"
+        },
+        "page_instance_guid": {
+          "type": "string",
+          "description": "The `page_instance_guid` from the offers response."
+        },
+        "token": {
+          "type": "string",
+          "description": "The event token for that element, from the offers response. Each\nelement carries its own token — send the one belonging to the element\nnamed by `parent_id`.\n"
+        },
+        "capture_method": {
+          "type": "string",
+          "description": "How the event was captured, e.g. `ClientProvided`."
+        }
+      }
+    }
+  }
+}

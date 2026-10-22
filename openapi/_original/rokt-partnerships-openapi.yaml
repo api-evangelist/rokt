@@ -1,0 +1,2731 @@
+openapi: 3.0.3
+info:
+  title: Rokt Partnerships API
+  version: 0.1.0-preview
+  description: |
+    Partner-facing REST API for white-label onboarding of merchant accounts
+    onto the Rokt network. Designed for SMB tech platforms to register
+    merchants, configure marketplace and offer controls, and manage placement
+    status, all without a manual Rokt UI step.
+
+    > **PREVIEW: Subject to Change.** This API surface is in active
+    > development. Payloads, endpoints, and behavior may shift. Rokt
+    > will notify you of any breaking change.
+
+    ### Two cross-cutting contracts to bind to before any call
+
+    **1. Every response is enveloped.** Success and error responses use the
+    same wrapper:
+
+    ```json
+    {
+      "status": 200,
+      "error": null,
+      "message": "ok",
+      "request_id": "0e3a1b9c-...-...",
+      "data": { /* endpoint-specific payload */ }
+    }
+    ```
+
+    Your client should read the endpoint payload from `data`, not from the
+    response root. The `request_id` is the correlation ID for support tickets.
+
+    Exception: `POST /v1/partnership/network-privacy-requests` returns a
+    direct privacy request response rather than the partnership envelope.
+
+    **2. `X-Platform-Parent-Account-Id` is required on every write.** Every
+    write call (`POST /register`,
+    `PUT /marketplacecontrolslists`,
+    `PUT /status`, `POST /payout-setup`) must include the
+    `X-Platform-Parent-Account-Id` header set to your partner platform's
+    Rokt parent account ID. Reads accept the header as optional. Missing it
+    on a write returns `422`.
+
+    Exception: `POST /v1/partnership/network-privacy-requests` takes
+    `parent_account_id` as a query parameter and does not require
+    `Idempotency-Key`.
+  contact:
+    name: Rokt Partnerships Engineering
+    email: smb-partnerships@rokt.com
+servers:
+  - url: https://accounts.rokt.com
+    description: Production
+security:
+  - ApiToken: []
+tags:
+  - name: Accounts
+    description: Register and list managed merchant accounts.
+  - name: Taxonomy
+    description: |
+      Read the partner-vertical to Rokt-vertical mappings seeded for your
+      parent account.
+
+      Seeding itself is not self-serve: Rokt creates the rows during
+      onboarding from the category list you supply. Until they exist,
+      register and marketplace-control writes reject with `400`.
+  - name: Controls
+    description: Marketplace and offer control configuration.
+  - name: Layouts
+    description: Per-merchant layout theme edits.
+  - name: Status
+    description: Pause and resume partnership placements.
+  - name: Payout Setup
+    description: >
+      Stripe Connect payout onboarding for managed accounts.
+
+
+      **V1 payout model:** Rokt pays the partner-side payout (your
+
+      platform's revenue share, per your partnership agreement) to your manager
+      account, not to
+
+      individual managed accounts. Distributing each merchant's portion
+
+      among your managed accounts is your platform's responsibility.
+  - name: Privacy
+    description: Network privacy and managed-account data deletion requests.
+  - name: Operations
+    description: Poll the status of asynchronous-style operations.
+paths:
+  /v1/accounts/register/partnership:
+    post:
+      tags:
+        - Accounts
+      summary: Register a managed merchant
+      operationId: registerPartnership
+      description: >
+        Creates (or matches) a Rokt account for a merchant onboarded via
+
+        your platform. Idempotent on `external_account_id`: sending the
+
+        same `external_account_id` twice returns the same `account_id`
+
+        without creating a duplicate.
+
+
+        ### Conflict behavior
+
+        - **200**: New account created OR existing account matched via
+          `external_account_id`. The same `account_id` is returned in both
+          cases.
+        - **409**: A different Rokt integration is already attached to this
+          `store_identifier` (e.g. another platform already
+          registered the same storefront URL). Surface the prompt below
+          to the merchant.
+
+        > **`store_identifier` must be a valid URL** (3–400 chars). Send
+
+        > the full origin including scheme, e.g. `https://acme.myshopify.com`,
+
+        > not just `acme.myshopify.com`. The server rejects bare hostnames
+
+        > with 400.
+
+
+        > **Wait 1–2 minutes before calling other endpoints on the new
+
+        > `account_id`.** Auth propagation for newly-created merchant
+
+        > accounts is asynchronous. Calls to controls, status, or payout-setup
+
+        > endpoints immediately after a successful register may return `401`
+
+        > or `403` until propagation completes. Retry with backoff for the
+
+        > first 1–2 minutes after registration before treating an auth
+
+        > failure as terminal.
+
+
+        **Rate limit:** 10 requests/minute per partner. See [Rate
+        Limits](/developer-reference/apis/partnerships-api/rate-limits).
+      parameters:
+        - $ref: '#/components/parameters/PlatformParentAccountIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterPartnershipRequest'
+            examples:
+              new-merchant:
+                summary: Fresh merchant registration
+                value:
+                  brand: Acme Apparel
+                  vertical_id: 1500
+                  sub_vertical_id: 1610
+                  country_code: US
+                  platform_parent_account_id: <your-platform-parent-account-id>
+                  store_identifier: https://acme-apparel.example.com
+                  external_account_id: partner-merchant-abc123
+                  user_identifier: owner@acme-apparel.com
+      responses:
+        '200':
+          description: Account created or matched
+          headers:
+            X-Operation-Id:
+              $ref: '#/components/headers/XOperationId'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/RegisterPartnershipResponse'
+              examples:
+                success:
+                  value:
+                    status: 200
+                    error: null
+                    message: ok
+                    request_id: 0e3a1b9c-1234-4abc-9def-aaaabbbbcccc
+                    data:
+                      account_id: <your-account-id>
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Rokt integration conflict; different partner already owns this store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+              examples:
+                conflict:
+                  value:
+                    status: 409
+                    error: Conflict
+                    message: Rokt Account already exists
+                    request_id: 0e3a1b9c-1234-4abc-9def-aaaabbbbcccc
+                    data: null
+        '422':
+          $ref: '#/components/responses/MissingPlatformParent'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /v1/partnership/accounts:
+    get:
+      tags:
+        - Accounts
+      summary: List managed accounts
+      operationId: listManagedAccounts
+      description: |
+        Returns the set of merchant accounts managed by a given partner
+        parent account. Pass your partner platform's Rokt parent account
+        ID in the `parent_account_id` query parameter.
+
+        Cursor-paginated. The response carries a top-level `next_cursor`
+        string when more pages exist; pass it back as the `cursor` query
+        parameter on the next call. When `next_cursor` is `null` the
+        iteration is complete.
+
+        > **Single-account detail endpoint is not yet available.** Use the
+        > per-resource reads (`GET /marketplacecontrolslists`,
+        > `GET /status`) to inspect an
+        > individual managed account. A consolidated `GET /accounts/{id}`
+        > is planned but not yet exposed on the partner surface.
+      parameters:
+        - in: query
+          name: parent_account_id
+          required: true
+          schema:
+            type: string
+          description: >-
+            Your partner platform's Rokt parent account ID. Server returns 400
+            if omitted.
+        - in: query
+          name: cursor
+          required: false
+          schema:
+            type: string
+          description: >-
+            Opaque cursor returned in `next_cursor` from a prior call. Omit on
+            the first page.
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+          description: Maximum items per page. Server-side cap is 200.
+      responses:
+        '200':
+          description: One page of managed accounts.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartnershipAccountsPage'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/partnership/vertical-mappings:
+    get:
+      tags:
+        - Taxonomy
+      summary: List seeded vertical mappings
+      operationId: listVerticalMappings
+      description: |
+        Returns the partner-vertical to Rokt-vertical mappings seeded for
+        your parent account, in your own taxonomy.
+
+        Any `{partner_vertical_id, partner_sub_vertical_id}` pair in the
+        response is safe to send on `POST /v1/accounts/register/partnership`
+        and `PUT /marketplacecontrolslists`. Both resolve partner category
+        IDs through this mapping and reject with `400` when a pair is
+        missing.
+
+        Rows are ordered by `partner_vertical_id`, then
+        `partner_sub_vertical_id`. `vertical_name` is the only Rokt-side
+        field returned; Rokt's internal numeric vertical IDs stay
+        server-side.
+
+        An empty `vertical_mappings` array means nothing is seeded yet, so
+        every register call will fail. Email smb-partnerships@rokt.com your
+        complete category list and wait for confirmation.
+
+        > **Read-only.** Rokt creates mapping rows. There is no
+        > partner-callable write on this path.
+      parameters:
+        - in: query
+          name: parent_account_id
+          required: true
+          schema:
+            type: string
+            pattern: ^[0-9]+$
+          description: >-
+            Your partner platform's Rokt parent account ID. Server returns 400
+            if omitted.
+          example: <your-platform-parent-account-id>
+        - in: query
+          name: parent_account
+          required: false
+          schema:
+            type: string
+            pattern: ^[0-9]+$
+          description: |
+            Legacy alias for `parent_account_id`, accepted for backward
+            compatibility. Prefer `parent_account_id` on new integrations.
+        - $ref: '#/components/parameters/PlatformParentAccountIdHeaderOptional'
+      responses:
+        '200':
+          description: The vertical mappings seeded for the parent account.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/VerticalMappingsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /v1/partnership/accounts/{account_id}/marketplacecontrolslists:
+    get:
+      tags:
+        - Controls
+      summary: Get marketplace controls
+      operationId: getMarketplaceControls
+      description: |
+        Returns the merchant's current marketplace control configuration:
+        blocked verticals (in partner taxonomy) and domain controls.
+      parameters:
+        - $ref: '#/components/parameters/AccountIdPath'
+        - $ref: '#/components/parameters/PlatformParentAccountIdHeaderOptional'
+      responses:
+        '200':
+          description: Current marketplace controls
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/MarketplaceControlsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+        - Controls
+      summary: Update marketplace controls
+      operationId: putMarketplaceControls
+      description: >
+        Updates the marketplace controls (blocked verticals + domain rules)
+
+        on a managed account.
+
+
+        > **Verticals merge; domains replace.** `blockedVerticals` is applied
+
+        > on top of the merchant's stored vertical policy, so a vertical you
+
+        > omit keeps the policy it already has. To unblock one, send it
+
+        > explicitly with `policy: "Allow"`. `domains` is desired-state:
+
+        > anything you omit is removed. See [Update
+        Semantics](/developer-reference/apis/partnerships-api/concepts/set-semantics)
+
+        > for the full mental model.
+
+
+        Partner vertical IDs are translated to Rokt's internal taxonomy
+
+        server-side via your vertical mapping. Sending a
+
+        partner vertical with no mapping returns a 400 and rejects the
+
+        whole request atomically (no partial writes).
+
+
+        ### Optimistic concurrency
+
+
+        Optionally include `contentHash` from a prior GET. It is advisory
+
+        today: a stale hash is logged server-side and the write still
+
+        proceeds. Do not rely on it to detect concurrent edits, and do not
+
+        expect a 409.
+
+
+        **Rate limit:** 60 requests/minute per partner. See [Rate
+        Limits](/developer-reference/apis/partnerships-api/rate-limits).
+      parameters:
+        - $ref: '#/components/parameters/AccountIdPath'
+        - $ref: '#/components/parameters/PlatformParentAccountIdHeader'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/DryRun'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PutMarketplaceControlsRequest'
+            examples:
+              block-categories:
+                summary: Block tobacco, gambling, and competitor domain
+                value:
+                  name: Acme Network Controls
+                  blockedVerticals:
+                    - partnerVerticalId: 1500
+                      partnerSubVerticalId: 1610
+                      policy: Block
+                      position1Policy: Block
+                    - partnerVerticalId: 1500
+                      partnerSubVerticalId: 1611
+                      policy: Block
+                      position1Policy: Block
+                  domains:
+                    - domain: competitor.example.com
+                      policy: Block
+                  contentHash: null
+      responses:
+        '200':
+          description: Marketplace controls updated (or validated, on dry-run)
+          headers:
+            X-Operation-Id:
+              $ref: '#/components/headers/XOperationId'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/MarketplaceControlsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
+        '422':
+          $ref: '#/components/responses/MissingPlatformParent'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '503':
+          description: >-
+            Rokt could not read the merchant's current controls, so the write
+            was rejected rather than applied from an incomplete picture. Nothing
+            was changed. The body is the generic 5xx envelope. Retry with the
+            same Idempotency-Key; a 503 is transient and re-executes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v1/partnership/accounts/{account_id}/layouts/{layout_id}:
+    patch:
+      tags:
+        - Layouts
+      summary: Customize a partnership layout
+      operationId: patchPartnershipLayout
+      description: >
+        Apply a partner's customizations to one of the merchant's partnership-
+
+        created templated layouts. Every field on the body is optional; only
+
+        the keys you send get applied, and any settings you do not touch are
+
+        preserved.
+
+
+        The server runs the same patch-bump predicate the Rokt One Platform UI
+        uses on save
+
+        (same major+minor, status=Published, highest patch) so merchant
+
+        layouts pick up upstream template patch fixes automatically. Minor
+
+        and major template version bumps never auto-apply.
+
+
+        Returns `404` if the layout does not exist on the account or has
+
+        been archived. Returns `422` if the layout was not created through
+
+        the partnership onboarding flow or does not support the requested
+        customization.
+
+        Later One Platform changes can affect edit compatibility.
+
+
+        Requests with `dry_run=true` return 400 `DryRunNotSupported` before
+        work.
+      parameters:
+        - $ref: '#/components/parameters/AccountIdPath'
+        - name: layout_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: >-
+            Rokt-issued layout identifier (from `pages[].layout_id` on the
+            registration response).
+        - $ref: '#/components/parameters/PlatformParentAccountIdHeaderOptional'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/DryRunUnsupported'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PartnershipLayoutEditRequest'
+      responses:
+        '200':
+          description: Edits applied; layout template version returned.
+          headers:
+            X-Operation-Id:
+              $ref: '#/components/headers/XOperationId'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PartnershipLayoutEditResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/LayoutEditUnprocessable'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '503':
+          description: >-
+            Expanded layout customization is temporarily unavailable, or a
+            downstream service is unavailable. The expanded-customization
+            availability check runs before editing or recording an operation;
+            original-only edits remain available when that check rejects
+            expanded properties. Other downstream failures can record a failed
+            operation. Retry real writes with the same Idempotency-Key and use
+            X-Operation-Id when returned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v1/partnership/accounts/{account_id}/pages:
+    post:
+      tags:
+        - Accounts
+      summary: Add pages to an existing managed account
+      operationId: addPartnershipPages
+      description: >
+        Create one or more additional page+layout combinations on a
+
+        merchant that's already been registered. Rokt reuses the same
+
+        per-surface provisioning steps the registration flow uses, but does NOT
+
+        re-create marketplace controls or targeting rule sets;
+
+        those already exist at account level.
+
+
+        Use this when a partner adds a new surface to a merchant's
+
+        integration post-launch (e.g. a tracking page added after the
+
+        confirmation page was already configured at registration).
+
+
+        **V1 limitations**
+
+        - New pages are created without a linked targeting rule set.
+          If you need ruleset linkage today, include the surface on the
+          original registration call.
+        - Surface uniqueness is enforced by the underlying handler:
+          calling twice for the same surface returns `422`, not a clean
+          `409`. Use `GET /accounts` and the registration response's
+          `pages[].page_identifier` to track which surfaces already exist.
+
+        Requests with `dry_run=true` return 400 `DryRunNotSupported` before
+        work.
+      parameters:
+        - $ref: '#/components/parameters/AccountIdPath'
+        - $ref: '#/components/parameters/PlatformParentAccountIdHeader'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/DryRunUnsupported'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddPartnershipPagesRequest'
+      responses:
+        '201':
+          description: Pages created.
+          headers:
+            X-Operation-Id:
+              $ref: '#/components/headers/XOperationId'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AddPartnershipPagesResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/MissingPlatformParent'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /v1/partnership/accounts/{account_id}/pages/{page_id}:
+    put:
+      tags:
+        - Accounts
+      summary: Switch a page's layout type
+      operationId: switchPartnershipPageLayout
+      description: >
+        Switch an existing page between layout types (e.g. `Overlay` ↔
+
+        `Embedded`) without re-registering the merchant or recreating the
+
+        page. The page's `page_identifier` and URL targeting are unchanged
+
+        by the switch; your SDK code keeps passing the same identifier
+
+        into `selectPlacements`.
+
+
+        The layout types a page can switch to are the same set your
+
+        integration's preset accepts at registration and on
+
+        `POST /v1/partnership/accounts/{account_id}/pages`.
+
+
+        Two distinct error codes for `layout_type` problems:
+
+        - **422**: Returned when `layout_type` is not a recognised enum value
+          (e.g. a typo or unknown string). Caught by the F&A input validation
+          layer before reaching transactions.
+        - **400**: Returned when `layout_type` is a valid value but is not
+          supported for this page's surface on your integration (e.g.
+          requesting S2S on a confirmation page when your integration only
+          supports Overlay and Embedded). The error message names the allowed
+          values.
+
+        Theme edits applied via
+
+        `PATCH /v1/partnership/accounts/{account_id}/layouts/{layout_id}`
+
+        are preserved across switches; switching back to a layout type the
+
+        page used before restores that layout, including its theme edits.
+
+
+        Requesting the `layout_type` the page already has returns `200`
+
+        as a no-op, safe to call from reconciliation loops.
+
+
+        The response carries the `layout_id` now active on the page. Use
+
+        that value for subsequent theme edits; a `layout_id` captured
+
+        before the switch refers to the inactive layout.
+
+
+        Requests with `dry_run=true` return 400 `DryRunNotSupported` before
+        work.
+      parameters:
+        - $ref: '#/components/parameters/AccountIdPath'
+        - name: page_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: >-
+            Rokt-issued page identifier (from `pages[].page_id` on the
+            registration or add-pages response).
+        - $ref: '#/components/parameters/PlatformParentAccountIdHeader'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/DryRunUnsupported'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SwitchPartnershipPageLayoutRequest'
+      responses:
+        '200':
+          description: Layout switched (or already the requested type; idempotent no-op).
+          headers:
+            X-Operation-Id:
+              $ref: '#/components/headers/XOperationId'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: >-
+                          #/components/schemas/SwitchPartnershipPageLayoutResponse
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/PageSwitchUnprocessable'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /v1/partnership/accounts/{account_id}/status:
+    get:
+      tags:
+        - Status
+      summary: Get partnership status
+      operationId: getPartnershipStatus
+      description: |
+        Returns the aggregate active/paused status across all non-archived
+        page variants on the account.
+
+        ### Aggregation rule
+        - `"active"`: every non-archived variant is enabled
+        - `"paused"`: every non-archived variant is disabled (or none exist)
+        - `"mixed"`: some enabled, some disabled
+
+        The per-variant breakdown is returned in `variants` so partners can
+        compute per-page state client-side if needed.
+      parameters:
+        - $ref: '#/components/parameters/AccountIdPath'
+        - $ref: '#/components/parameters/PlatformParentAccountIdHeaderOptional'
+      responses:
+        '200':
+          description: Aggregate status + per-variant detail
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/StatusCascadeResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+        - Status
+      summary: Pause or resume partnership
+      operationId: putPartnershipStatus
+      description: >
+        Cascades active/paused status across all non-archived page variants
+
+        on the account. Archived variants are unaffected.
+
+
+        Round-trip identity: after `PUT status=paused` you should always
+
+        see `GET status → "paused"`. If you see `"mixed"` instead, the PUT
+
+        failed to update some variants; surface a support ticket.
+
+
+        **Rate limit:** 60 requests/minute per partner. See [Rate
+        Limits](/developer-reference/apis/partnerships-api/rate-limits).
+      parameters:
+        - $ref: '#/components/parameters/AccountIdPath'
+        - $ref: '#/components/parameters/PlatformParentAccountIdHeader'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/DryRun'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PutStatusRequest'
+            examples:
+              pause:
+                summary: Pause all placements
+                value:
+                  status: paused
+              activate:
+                summary: Resume all placements
+                value:
+                  status: active
+      responses:
+        '200':
+          description: Status cascaded (or validated, on dry-run)
+          headers:
+            X-Operation-Id:
+              $ref: '#/components/headers/XOperationId'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/StatusCascadeResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
+        '422':
+          $ref: '#/components/responses/MissingPlatformParent'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /v1/partnership/accounts/{account_id}/payout-setup:
+    post:
+      tags:
+        - Payout Setup
+      summary: Start Stripe Connect payout setup
+      operationId: postPayoutSetup
+      description: >
+        Initiates Stripe Connect onboarding for the managed merchant.
+
+
+        **V1 payout model:** Rokt pays the partner-side payout (your
+
+        platform's revenue share, per your partnership agreement) to your
+        manager account, not to
+
+        individual managed accounts. Distributing each merchant's portion
+
+        among your managed accounts is your platform's responsibility.
+
+
+        Choose **one** of two onboarding shapes:
+
+
+        - `experience: "embedded"`: render the Stripe-hosted onboarding
+          flow inside your own app. Do **not** send a `contact` block;
+          server rejects with 400 if you do (`"contact is only valid for
+          hosted_invite payout setup"`).
+        - `experience: "hosted_invite"`: Rokt emails the merchant an
+          onboarding link. `contact.email` is **required**; the server
+          rejects with 400 if absent.
+
+        > Do **not** pass any bank account, card, routing, SSN, IBAN, tax,
+
+        > PayPal, or external-account fields in the request; these are
+
+        > explicitly forbidden in any nested key and return 400. Stripe
+
+        > collects financial data directly from the merchant.
+
+
+        **Rate limit:** 10 requests/minute per partner. See [Rate
+        Limits](/developer-reference/apis/partnerships-api/rate-limits).
+
+
+        Requests with `dry_run=true` return 400 `DryRunNotSupported` before
+        work.
+      parameters:
+        - $ref: '#/components/parameters/AccountIdPath'
+        - $ref: '#/components/parameters/PlatformParentAccountIdHeader'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/DryRunUnsupported'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostPayoutSetupRequest'
+            examples:
+              embedded:
+                summary: Embedded Stripe-hosted flow (no contact)
+                value:
+                  provider: stripe_connect
+                  experience: embedded
+              hosted_invite:
+                summary: Hosted-invite flow (Rokt emails the merchant)
+                value:
+                  provider: stripe_connect
+                  experience: hosted_invite
+                  contact:
+                    email: merchant@example.com
+                    name: Acme Apparel
+      responses:
+        '200':
+          description: Onboarding session created
+          headers:
+            X-Operation-Id:
+              $ref: '#/components/headers/XOperationId'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PayoutSetupResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/MissingPlatformParent'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /v1/partnership/accounts/{account_id}/payout-setup/status:
+    get:
+      tags:
+        - Payout Setup
+      summary: Get payout setup status
+      operationId: getPayoutSetupStatus
+      description: |
+        Polls the current state of Stripe Connect onboarding for the
+        managed merchant.
+      parameters:
+        - $ref: '#/components/parameters/AccountIdPath'
+        - $ref: '#/components/parameters/PlatformParentAccountIdHeaderOptional'
+        - in: query
+          name: provider
+          schema:
+            type: string
+            enum:
+              - stripe_connect
+            default: stripe_connect
+      responses:
+        '200':
+          description: Current payout setup state
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PayoutSetupStatusResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/partnership/network-privacy-requests:
+    post:
+      tags:
+        - Privacy
+      summary: Submit a network privacy request
+      operationId: postNetworkPrivacyRequest
+      description: >
+        Submit a consumer network privacy request on behalf of an end user
+
+        of the Rokt network.
+
+
+        This endpoint is for network-wide consumer identifiers, not for a
+
+        managed merchant account. Use
+
+        `POST /v1/partnership/accounts/{account_id}/data-deletion-requests`
+
+        for account-level deletion.
+
+
+        Supported request types:
+
+        - `NETWORK_OPT_OUT` accepts exactly one of `email` or `phone` and
+          submits an `OPT_OUT` action to Rokt's privacy/consent service.
+        - `NETWORK_DATA_DELETION` accepts exactly one of `email` or
+          `sha256Email` and submits the same network suppression action Rokt
+          uses for deleted network user data.
+
+        The Accounts API does not persist raw consumer identifiers or
+
+        downstream response bodies.
+
+
+        This route returns a direct privacy response, not the standard
+
+        partnership envelope. It does not create a partnership operation and
+
+        does not require `Idempotency-Key`.
+
+
+        **Rate limit:** 10 requests/minute per partner. See [Rate
+        Limits](/developer-reference/apis/partnerships-api/rate-limits).
+      parameters:
+        - $ref: '#/components/parameters/ParentAccountIdQuery'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostNetworkPrivacyRequest'
+            examples:
+              network-opt-out-email:
+                summary: Network opt-out by email
+                value:
+                  requestType: NETWORK_OPT_OUT
+                  email: consumer@example.com
+              network-opt-out-phone:
+                summary: Network opt-out by phone
+                value:
+                  requestType: NETWORK_OPT_OUT
+                  phone: '+15555550100'
+              network-data-deletion-hash:
+                summary: Network data deletion by base64 SHA256 email
+                value:
+                  requestType: NETWORK_DATA_DELETION
+                  sha256Email: kJbnntuJYvQBhPiiHQcz6OSn0EyvzVeOBmtsG2sWkyU=
+      responses:
+        '202':
+          description: Privacy request submitted downstream
+          headers:
+            X-Network-Privacy-Request-Id:
+              $ref: '#/components/headers/XNetworkPrivacyRequestId'
+            X-Request-Id:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NetworkPrivacyRequestResponse'
+              examples:
+                submitted:
+                  value:
+                    request_id: dad24980-de21-43e5-839b-cf66f840d9d1
+                    request_type: NETWORK_OPT_OUT
+                    identifier_type: email
+                    status: submitted
+                    downstream_request_id: consent-123
+                    message: >-
+                      Network opt-out request submitted to Rokt's
+                      privacy/consent service.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /v1/partnership/accounts/{account_id}/data-deletion-requests:
+    post:
+      tags:
+        - Privacy
+      summary: Submit account-level data deletion
+      operationId: postAccountDataDeletionRequest
+      description: >
+        Submit a data deletion request for a managed merchant account owned
+
+        by your partner parent account.
+
+
+        This endpoint is separate from
+
+        `POST /v1/partnership/network-privacy-requests`, which acts on an
+
+        end user's network-level privacy request by consumer identifier.
+
+
+        Rokt validates your API token against `RegisterPartnership` on
+
+        `X-Platform-Parent-Account-Id`, verifies that the parent owns the
+
+        supplied managed `account_id`, and forwards the request to the
+
+        internal Data Deletion account API. The Accounts API does not persist
+
+        downstream response bodies.
+
+
+        The request body is empty. The target account is the `account_id` in
+
+        the path.
+
+
+        `dry_run=true` validates the request and skips downstream submission.
+
+        Dry-run responses do not carry `X-Operation-Id` because no operation
+
+        is persisted.
+
+
+        **Rate limit:** 10 requests/minute per partner. See [Rate
+        Limits](/developer-reference/apis/partnerships-api/rate-limits).
+      parameters:
+        - $ref: '#/components/parameters/AccountIdPath'
+        - $ref: '#/components/parameters/PlatformParentAccountIdHeader'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/DryRun'
+      responses:
+        '202':
+          description: Account-level deletion request accepted
+          headers:
+            X-Operation-Id:
+              $ref: '#/components/headers/XOperationId'
+            X-Partnership-Account-Data-Deletion-Request-Id:
+              $ref: '#/components/headers/XPartnershipAccountDataDeletionRequestId'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/AcceptedEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: >-
+                          #/components/schemas/AccountDataDeletionRequestResponse
+              examples:
+                submitted:
+                  value:
+                    status: 202
+                    error: null
+                    message: accepted
+                    request_id: 0e3a1b9c-1234-4abc-9def-aaaabbbbcccc
+                    data:
+                      request_id: dad24980-de21-43e5-839b-cf66f840d9d1
+                      account_id: <your-account-id>
+                      status: submitted
+                      downstream_request_id: delete-account-1
+                      message: >-
+                        Partnership account data deletion request submitted to
+                        the Data Deletion API.
+                dry-run:
+                  summary: Dry-run validation only
+                  value:
+                    status: 202
+                    error: null
+                    message: accepted
+                    request_id: 0e3a1b9c-1234-4abc-9def-aaaabbbbcccc
+                    dry_run: true
+                    data:
+                      request_id: dad24980-de21-43e5-839b-cf66f840d9d1
+                      account_id: <your-account-id>
+                      status: submitted
+                      message: >-
+                        Partnership account data deletion request validated;
+                        dry_run=true prevented downstream submission.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
+        '422':
+          $ref: '#/components/responses/MissingPlatformParent'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /v1/partnership/operations/{operation_id}:
+    get:
+      tags:
+        - Operations
+      summary: Poll an operation by ID
+      operationId: getOperation
+      description: >
+        Returns the persistent record of a partnership operation by its
+
+        `operation_id`. Every write call returns `X-Operation-Id` in its
+
+        response headers; capture that value if you want to recover from
+
+        an HTTP timeout without re-issuing the write.
+
+
+        The caller's parent account must match the operation's owner;
+
+        cross-tenant reads return `403`. The `X-Platform-Parent-Account-Id`
+
+        header is required on every poll; missing or mismatched returns
+
+        `403` (not `422` as on write endpoints).
+
+
+        **Rate limit:** 600 requests/minute per partner (polling-friendly). See
+        [Rate Limits](/developer-reference/apis/partnerships-api/rate-limits).
+      parameters:
+        - in: path
+          name: operation_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/PlatformParentAccountIdHeader'
+      responses:
+        '200':
+          description: Operation record
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/OperationResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+components:
+  securitySchemes:
+    ApiToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >
+        Short-lived access token (JWT), exchanged from your platform's API
+
+        credentials (`client_id` + `client_secret`). Rokt issues the API
+
+        credentials once, during onboarding. They are not self-serve;
+
+        request them from **smb-partnerships@rokt.com**. The same long-lived
+
+        credentials are reused for every token exchange. Pass the access
+
+        token as `Authorization: Bearer <token>`. See
+
+        [Authentication](/developer-reference/apis/partnerships-api/authentication#get-your-api-credentials)
+
+        for the issuance flow and token rotation guidance.
+  parameters:
+    AccountIdPath:
+      name: account_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9]+$
+      description: |
+        The Rokt-issued managed merchant account ID. Returned as a string
+        everywhere. IDs can exceed 2^53, which overflows JavaScript
+        `Number`; bind to string, not int64.
+    ParentAccountIdQuery:
+      name: parent_account_id
+      in: query
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9]+$
+      description: |
+        Your partner platform's Rokt parent account ID. Required for network
+        privacy requests because they do not target a managed account path.
+      example: <your-platform-parent-account-id>
+    PlatformParentAccountIdHeader:
+      name: X-Platform-Parent-Account-Id
+      in: header
+      required: true
+      schema:
+        type: string
+      description: |
+        Your partner platform's Rokt parent account ID. Required on every
+        write call. Missing returns
+        `422`; mismatch with the managed account's actual parent returns
+        `403`.
+      example: <your-platform-parent-account-id>
+    PlatformParentAccountIdHeaderOptional:
+      name: X-Platform-Parent-Account-Id
+      in: header
+      required: false
+      schema:
+        type: string
+      description: |
+        Your partner platform's Rokt parent account ID. Recommended for
+        consistent caller context on these existing routes. Authorization
+        uses the target-account permission or the separately declared body
+        or query parent; this header is not an authorization override and
+        does not introduce an additional parent-child check.
+      example: <your-platform-parent-account-id>
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: >
+        Stable client-generated token that collapses retries to a single
+
+        server-side operation. Required on all write calls; sending the
+
+        same key twice within a **24-hour dedup window** returns the cached
+
+        response. After 24h the key expires and re-sending it triggers a
+
+        fresh execution. See [Idempotency
+        Keys](/developer-reference/apis/partnerships-api/concepts/idempotency).
+    DryRun:
+      name: dry_run
+      in: query
+      required: false
+      schema:
+        type: boolean
+        default: false
+      description: >
+        When `true`, the server runs the full request (validation,
+
+        translation, database writes inside a transaction) and then
+
+        rolls everything back. The response payload is the same shape as
+
+        a real write, but the envelope adds `dry_run: true` alongside
+
+        `data`. See [Dry-Run
+        Mode](/developer-reference/apis/partnerships-api/concepts/dry-run).
+    DryRunUnsupported:
+      name: dry_run
+      in: query
+      required: false
+      schema:
+        type: boolean
+        default: false
+      description: >-
+        A true value is rejected with 400 DryRunNotSupported before work. This
+        endpoint does not support previews.
+  headers:
+    XRequestId:
+      description: >-
+        Server-issued request correlation ID. Pass this to support for log
+        lookup.
+      schema:
+        type: string
+    XOperationId:
+      description: |
+        Correlation ID for this write. Capture this value if you want to
+        recover from an HTTP timeout without re-issuing the write: pass
+        it to `GET /v1/partnership/operations/{operation_id}` to fetch
+        the persistent record of the operation.
+      schema:
+        type: string
+        format: uuid
+    XNetworkPrivacyRequestId:
+      description: >-
+        Rokt-generated network privacy request ID for support and audit
+        correlation.
+      schema:
+        type: string
+        format: uuid
+    XPartnershipAccountDataDeletionRequestId:
+      description: Rokt-generated account data deletion request ID.
+      schema:
+        type: string
+        format: uuid
+  responses:
+    BadRequest:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          examples:
+            validation:
+              value:
+                status: 400
+                error: BadRequest
+                message: store_identifier https://acme is not a valid URL
+                request_id: 0e3a1b9c-1234-4abc-9def-aaaabbbbcccc
+                data: null
+    Unauthorized:
+      description: Missing or invalid API token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    Forbidden:
+      description: API token valid but missing required permission grant
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    NotFound:
+      description: Resource does not exist or is not accessible to caller
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    IdempotencyConflict:
+      description: |
+        Returned for two distinct `Idempotency-Key` collisions, distinguishable
+        via the `error` field:
+
+        - `OperationInProgress`: an operation with this key is currently
+          in flight. Poll `GET /v1/partnership/operations/{operation_id}`
+          using the `X-Operation-Id` you received on the original call, or
+          wait and retry with the same key.
+        - `IdempotencyKeyExpired`: the key was used previously and is now
+          outside the 24-hour dedup window. Generate a fresh key for a new
+          operation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          examples:
+            operation-in-progress:
+              summary: Same Idempotency-Key, operation still running
+              value:
+                status: 409
+                error: OperationInProgress
+                message: Operation already in progress
+                request_id: 0e3a1b9c-1234-4abc-9def-aaaabbbbcccc
+                data:
+                  recovery_hint: >-
+                    Poll GET /v1/partnership/operations/{operation_id} with the
+                    X-Operation-Id from your original call.
+            idempotency-key-expired:
+              summary: Idempotency-Key reused after 24h dedup window
+              value:
+                status: 409
+                error: IdempotencyKeyExpired
+                message: Idempotency-Key has been used outside the 24h dedup window
+                request_id: 0e3a1b9c-1234-4abc-9def-aaaabbbbcccc
+                data:
+                  recovery_hint: Use a fresh Idempotency-Key for a new operation.
+    MissingPlatformParent:
+      description: |
+        Required `X-Platform-Parent-Account-Id` header missing on a write
+        call. Returned as a 422 validation error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          examples:
+            missing-header:
+              value:
+                status: 422
+                error: ValidationFailed
+                message: header X-Platform-Parent-Account-Id is required
+                request_id: 0e3a1b9c-1234-4abc-9def-aaaabbbbcccc
+                data: null
+    LayoutEditUnprocessable:
+      description: >
+        Returned on `PATCH
+        /v1/partnership/accounts/{account_id}/layouts/{layout_id}`
+
+        for invalid input (`ValidationError`),
+
+        or a layout that is not editable here (`ValidationFailed`). Invalid
+        input
+
+        includes unsupported font families and non-integer or out-of-range
+
+        buttonBorderRadius values. The layout must support the requested
+        customization. Incompatible layouts are rejected before any
+
+        changes are saved.
+
+        Header edits also require the current template to reference each
+        supplied
+
+        header setting; an unused headerBackground or headerForeground is
+        rejected.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          examples:
+            layout-not-editable:
+              summary: Layout exists but cannot be edited via this endpoint
+              value:
+                status: 422
+                error: ValidationFailed
+                message: Layout 8c83a1f0-12d4-4a2f-9d6e-f1e2c3b4a5d6 cannot be edited.
+                request_id: 0e3a1b9c-1234-4abc-9def-aaaabbbbcccc
+                data: null
+    PageSwitchUnprocessable:
+      description: |
+        Returned on `PUT /v1/partnership/accounts/{account_id}/pages/{page_id}`
+        for three distinct cases:
+
+        - `layout_type` is not a recognised enum value (e.g. a typo or unknown
+          string), caught by the F&A input validation layer before the request
+          reaches transactions (`ValidationFailed`).
+        - A missing required header (`ValidationFailed`).
+        - A page that is not in a switchable state (`Unprocessable`): for
+          example, a page that was not created through the partnership flow.
+          Every `page_id` returned by `POST /accounts/register/partnership`
+          and `POST /v1/partnership/accounts/{account_id}/pages` is switchable,
+          so partners using the standard flow should not see this case.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          examples:
+            unknown-layout-type:
+              summary: >-
+                Returned when `layout_type` is not a recognised enum value (e.g.
+                a typo or unknown string)
+              value:
+                status: 422
+                error: ValidationFailed
+                message: layout_type 'BadValue' is not a valid enum value
+                request_id: 0e3a1b9c-1234-4abc-9def-aaaabbbbcccc
+                data: null
+            missing-platform-parent:
+              summary: Required header missing
+              value:
+                status: 422
+                error: ValidationFailed
+                message: header X-Platform-Parent-Account-Id is required
+                request_id: 0e3a1b9c-1234-4abc-9def-aaaabbbbcccc
+                data: null
+            page-not-switchable:
+              summary: Page exists but cannot be switched via this endpoint
+              value:
+                status: 422
+                error: Unprocessable
+                message: Page bfb5b9be-1234-4abc-9def-aaaabbbbcccc cannot be switched.
+                request_id: 0e3a1b9c-1234-4abc-9def-aaaabbbbcccc
+                data: null
+    RateLimited:
+      description: >
+        Per-partner rate limit exceeded. Honor `Retry-After`, then retry
+
+        with the **same** `Idempotency-Key`. See [Rate
+        Limits](/developer-reference/apis/partnerships-api/rate-limits)
+
+        for caps per endpoint.
+      headers:
+        Retry-After:
+          description: Seconds until the next call will be accepted.
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          examples:
+            rate-limited:
+              value:
+                status: 429
+                error: RateLimitExceeded
+                message: >-
+                  Rate limit exceeded: 10 per 1 minute. Retry after the window
+                  resets.
+                request_id: 0e3a1b9c-1234-4abc-9def-aaaabbbbcccc
+                data: null
+    ServiceUnavailable:
+      description: >-
+        Downstream privacy service temporarily unavailable or
+        authorization/configuration failed.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          examples:
+            service-unavailable:
+              value:
+                status: 503
+                error: ServiceUnavailable
+                message: Downstream privacy service is temporarily unavailable
+                request_id: 0e3a1b9c-1234-4abc-9def-aaaabbbbcccc
+                data: null
+  schemas:
+    SuccessEnvelope:
+      type: object
+      required:
+        - status
+        - message
+        - request_id
+      description: |
+        Common success envelope shared by all `2xx` partnership responses.
+        The payload-bearing `data` field is contributed by each route's
+        own `allOf` branch with the concrete shape (object for most
+        routes, array for paginated reads). Keeping `data` out of the
+        base avoids the `allOf` schema warning where the base would
+        assert one type and the route override another.
+      properties:
+        status:
+          type: integer
+          enum:
+            - 200
+          example: 200
+        error:
+          type: string
+          nullable: true
+          example: null
+        message:
+          type: string
+          example: ok
+        request_id:
+          type: string
+          format: uuid
+          description: Server-issued correlation ID. Pass back to support for log lookup.
+        dry_run:
+          type: boolean
+          nullable: true
+          description: >-
+            Present and `true` when the call was made with `?dry_run=true`.
+            Absent otherwise.
+    AcceptedEnvelope:
+      type: object
+      required:
+        - status
+        - message
+        - request_id
+        - data
+      properties:
+        status:
+          type: integer
+          enum:
+            - 202
+          example: 202
+        error:
+          type: string
+          nullable: true
+          example: null
+        message:
+          type: string
+          example: accepted
+        request_id:
+          type: string
+          format: uuid
+          description: Server-issued correlation ID. Pass back to support for log lookup.
+        data:
+          description: Endpoint-specific payload.
+          nullable: true
+        dry_run:
+          type: boolean
+          nullable: true
+          description: >-
+            Present and `true` when the call was made with `?dry_run=true`.
+            Absent otherwise.
+    ErrorEnvelope:
+      type: object
+      required:
+        - status
+        - message
+        - request_id
+      properties:
+        status:
+          type: integer
+          description: HTTP status code (mirrors the response status).
+          example: 400
+        error:
+          type: string
+          description: Exception class name or error code.
+          example: BadRequest
+        message:
+          type: string
+          description: Human-readable error message safe to surface to the merchant.
+        request_id:
+          type: string
+          format: uuid
+          description: Server-issued correlation ID. Pass back to support for log lookup.
+        data:
+          type: object
+          nullable: true
+          description: Always `null` on error responses.
+    RegisterPartnershipRequest:
+      type: object
+      required:
+        - brand
+        - vertical_id
+        - sub_vertical_id
+        - country_code
+        - platform_parent_account_id
+        - store_identifier
+        - external_account_id
+        - user_identifier
+      properties:
+        brand:
+          type: string
+          maxLength: 200
+          description: Display name of the merchant.
+          example: Acme Apparel
+        vertical_id:
+          type: integer
+          description: >-
+            Partner-taxonomy vertical ID. Translated server-side to Rokt's
+            taxonomy via your vertical mapping.
+          example: 1500
+        sub_vertical_id:
+          type: integer
+          description: Partner-taxonomy sub-vertical ID.
+          example: 1610
+        country_code:
+          type: string
+          pattern: ^[A-Z]{2}$
+          description: ISO 3166-1 alpha-2 country code, uppercase.
+          example: US
+        platform_parent_account_id:
+          type: string
+          description: Your partner platform's Rokt parent account ID.
+          example: <your-platform-parent-account-id>
+        store_identifier:
+          type: string
+          format: uri
+          minLength: 3
+          maxLength: 400
+          description: >-
+            Stable URL identifying the merchant's storefront. Used for
+            cross-partner conflict detection.
+          example: https://acme-apparel.example.com
+        external_account_id:
+          type: string
+          description: >-
+            Your stable identifier for the merchant in your own system.
+            Idempotency key for registration.
+          example: partner-merchant-abc123
+        user_identifier:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: |
+            Identifier of the user initiating the signup on your platform,
+            typically the merchant owner's email address or your stable
+            internal user ID. Stored as the audit tag
+            `partnership_signup_user_identifier` on the created account for
+            consent / compliance trails. Required; non-empty after trimming;
+            max 255 characters.
+          example: owner@acme-apparel.com
+        pages:
+          type: array
+          minItems: 1
+          description: |
+            Optional **for most integrations**: when omitted, Rokt creates
+            the preset's default page set (typically `confirmation` +
+            `Overlay`). When supplied, Rokt creates one page + layout per
+            entry instead.
+
+            **A subset of integrations require `pages` to be passed
+            explicitly** because their primary surface isn't confirmation
+            (e.g. tracking-focused integrations). Omitting `pages` for
+            those returns `400` with a message naming the surfaces and
+            layout types your preset accepts. Consult your Rokt contact
+            if you're unsure whether your integration requires `pages`.
+
+            Constraints: at least one entry when supplied; each `surface`
+            may appear only once. Empty arrays are rejected (omit the
+            field to use the preset default, or include at least one entry).
+          items:
+            $ref: '#/components/schemas/RegisterPartnershipPage'
+    RegisterPartnershipPage:
+      type: object
+      required:
+        - surface
+        - layout_type
+      description: One entry in the optional `pages` array.
+      properties:
+        surface:
+          type: string
+          enum:
+            - confirmation
+            - tracking
+            - returns
+          description: |
+            Partner-facing surface alias. Maps server-side to Rokt's internal
+            page type and customer action:
+              - `confirmation`: order confirmation page (transactional)
+              - `tracking`: shipment/order tracking page (non-transactional)
+              - `returns`: returns portal (non-transactional)
+            The `payment` surface is intentionally deferred to a later release
+            (it needs its own controls treatment).
+          example: confirmation
+        layout_type:
+          type: string
+          enum:
+            - Overlay
+            - Embedded
+          description: |
+            Layout style for this surface.
+              - `Overlay`: modal that appears over the merchant's page.
+              - `Embedded`: renders inline within an anchor element on the
+                merchant's page (default selector `#rokt-container`).
+            Some integrations support only a subset of these values; see
+            the Pages and Layouts concept page for details.
+          example: Overlay
+    RegisterPartnershipResponse:
+      type: object
+      required:
+        - account_id
+      properties:
+        account_id:
+          type: string
+          description: The Rokt-issued account ID for this merchant.
+          example: <your-account-id>
+        pages:
+          type: array
+          description: |
+            Populated when the request supplied `pages`. One entry per
+            requested surface, in the order created. Store these per-merchant
+            so your SDK code can pass the right `page_identifier` to
+            `selectPlacements`.
+          items:
+            $ref: '#/components/schemas/RegisterPartnershipPageResponse'
+    RegisterPartnershipPageResponse:
+      type: object
+      required:
+        - surface
+        - page_id
+        - layout_id
+        - page_identifier
+      description: One entry in the response `pages` array.
+      properties:
+        surface:
+          type: string
+          enum:
+            - confirmation
+            - tracking
+            - returns
+          example: confirmation
+        page_id:
+          type: string
+          format: uuid
+          description: Rokt-issued page identifier (for support tickets).
+          example: bfb5b9be-1234-4abc-9def-aaaabbbbcccc
+        layout_id:
+          type: string
+          format: uuid
+          description: >-
+            Rokt-issued layout identifier (for support tickets and the
+            layout-update endpoint at `PATCH
+            /v1/partnership/accounts/{account_id}/layouts/{layout_id}`).
+          example: 9d11d8aa-5678-4def-9abc-bbbbccccdddd
+        page_identifier:
+          type: string
+          description: |
+            Stable string to pass into the Rokt Web SDK's
+            `selectPlacements({ identifier })` call. This is what the SDK
+            uses to target the configured page.
+          example: confirmation_page
+    ManagedAccount:
+      type: object
+      description: |
+        Internal managed-account row shape (used by Rokt-side admin
+        tooling). Partner-facing endpoints return
+        `PartnershipManagedAccount` instead; see
+        `PartnershipAccountsPage.results[i]`.
+      properties:
+        account_id:
+          type: string
+          example: <your-account-id>
+        brand:
+          type: string
+          example: Acme Apparel
+        country_code:
+          type: string
+          example: US
+        external_account_id:
+          type: string
+          example: partner-merchant-abc123
+        status:
+          type: string
+          enum:
+            - active
+            - paused
+            - mixed
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    PartnershipManagedAccount:
+      type: object
+      description: |
+        Partner-facing projection of a managed account row. Internal
+        fields (`id`, `manager_account_id`, `type`, `deleted_at`) plus
+        partner-input echoes (`brand`, `country_code`,
+        `external_account_id`) are deliberately stripped; those are
+        either Rokt-internal or already known to the caller from
+        registration.
+      properties:
+        account_id:
+          type: string
+          example: <your-account-id>
+        status:
+          type: string
+          description: |
+            Active/paused state of the managed account at the row level.
+            Uppercase, distinct from the lowercase `active`/`paused`/
+            `mixed` enum on the cascade-level
+            `GET /v1/partnership/accounts/{id}/status` response.
+          enum:
+            - ACTIVE
+            - PAUSED
+          example: ACTIVE
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    PartnershipAccountsPage:
+      type: object
+      description: |
+        Cursor-paginated response for `GET /v1/partnership/accounts`.
+        Unlike most partnership endpoints, this list endpoint does NOT
+        use the `SuccessEnvelope` wrapper; the page object IS the
+        response body.
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PartnershipManagedAccount'
+        next_cursor:
+          type: string
+          nullable: true
+          description: |
+            Opaque cursor for the next page. Pass back as the `cursor`
+            query parameter. `null` when iteration is complete.
+    PartnershipVerticalMappingRow:
+      type: object
+      description: |
+        One seeded mapping row, expressed in your taxonomy. Rokt's
+        internal numeric vertical and sub-vertical IDs are omitted;
+        `vertical_name` is the only Rokt-side field returned.
+      required:
+        - partner_vertical_id
+        - partner_sub_vertical_id
+        - vertical_name
+      properties:
+        partner_vertical_id:
+          type: integer
+          description: |
+            Your taxonomy's vertical ID. Send this as `vertical_id` on
+            register and as `partnerVerticalId` on the marketplace-controls
+            PUT.
+          example: 1500
+        partner_vertical_name:
+          type: string
+          nullable: true
+          description: Your name for the vertical, as supplied to Rokt during seeding.
+          example: Apparel
+        partner_sub_vertical_id:
+          type: integer
+          description: |
+            Your taxonomy's sub-vertical ID. Send this as `sub_vertical_id`
+            on register and as `partnerSubVerticalId` on the
+            marketplace-controls PUT.
+          example: 1610
+        partner_sub_vertical_name:
+          type: string
+          nullable: true
+          description: Your name for the sub-vertical, as supplied to Rokt during seeding.
+          example: Womenswear
+        vertical_name:
+          type: string
+          description: |
+            The Rokt category this pair resolves to. Display and
+            reconciliation only; no partner-callable endpoint accepts it as
+            input.
+          example: Retail
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: When the row was seeded (UTC).
+          example: '2026-07-01T00:00:00Z'
+    VerticalMappingsResponse:
+      type: object
+      description: |
+        Payload of `GET /v1/partnership/vertical-mappings`, carried in the
+        envelope's `data`.
+      required:
+        - vertical_mappings
+      properties:
+        vertical_mappings:
+          type: array
+          description: |
+            Seeded mappings, ordered by `partner_vertical_id` then
+            `partner_sub_vertical_id`. Empty when nothing is seeded for the
+            parent account.
+          items:
+            $ref: '#/components/schemas/PartnershipVerticalMappingRow'
+    PartnerMclVertical:
+      type: object
+      required:
+        - partnerVerticalId
+        - partnerSubVerticalId
+        - policy
+        - position1Policy
+      properties:
+        partnerVerticalId:
+          type: integer
+          description: Your taxonomy's vertical ID.
+        partnerSubVerticalId:
+          type: integer
+          description: Your taxonomy's sub-vertical ID.
+        policy:
+          type: string
+          enum:
+            - Allow
+            - Block
+          description: Policy across all offer positions. Required.
+        position1Policy:
+          type: string
+          enum:
+            - Allow
+            - Block
+          description: >-
+            Policy for offers in position 1 (the top-most placement). Required:
+            send the pair explicitly on every entry. Nothing is inferred; an
+            omitted value is a 422, not a default. Your merchant-facing
+            dashboard already holds a concrete value for both switches, so
+            sending both removes any ambiguity about what a partial entry meant.
+            The pair also lets you express a partial restriction, e.g. policy
+            Allow with position1Policy Block to keep a category out of the top
+            slot only.
+    PartnershipDomainControl:
+      type: object
+      required:
+        - domain
+        - policy
+      properties:
+        domain:
+          type: string
+          example: competitor.example.com
+        policy:
+          type: string
+          enum:
+            - Allow
+            - Block
+    PutMarketplaceControlsRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Display name for this controls list.
+          example: Acme Network Controls
+        blockedVerticals:
+          type: array
+          default: []
+          description: >-
+            Vertical policy overrides, merged onto the merchant's stored policy.
+            Omitted verticals are left unchanged; an empty array is a no-op, not
+            a reset. Send policy "Allow" to unblock.
+          items:
+            $ref: '#/components/schemas/PartnerMclVertical'
+        domains:
+          type: array
+          default: []
+          items:
+            $ref: '#/components/schemas/PartnershipDomainControl'
+        contentHash:
+          type: string
+          nullable: true
+          description: Optional optimistic-concurrency token from your last GET.
+    MarketplaceControlsResponse:
+      type: object
+      properties:
+        account_id:
+          type: string
+        marketplace_controls_list:
+          type: object
+          description: |
+            The merchant's controls record. Raw Rokt-taxonomy vertical IDs
+            are not exposed; use the top-level `translated_verticals`
+            instead.
+          properties:
+            marketplace_controls_list_id:
+              type: string
+              format: uuid
+            domains:
+              type: array
+              items:
+                $ref: '#/components/schemas/PartnershipDomainControl'
+            content_hash:
+              type: string
+              description: >-
+                Optimistic-concurrency token. Pass it back as the `contentHash`
+                field of your next PUT.
+            layouts:
+              type: array
+              description: Present when the controls record carries layout references.
+              items:
+                type: object
+                properties:
+                  layout_id:
+                    type: string
+                  surface:
+                    type: string
+                  page_id:
+                    type: string
+                  page_identifier:
+                    type: string
+        translated_verticals:
+          type: array
+          description: |
+            Effective policy for every sub-vertical mapped in your partner
+            taxonomy, one entry per mapping row. `vertical_id` is **your**
+            sub-vertical ID, not a Rokt ID.
+          items:
+            type: object
+            properties:
+              vertical_id:
+                type: integer
+                description: Your partner-taxonomy sub-vertical ID.
+              policy:
+                type: string
+                enum:
+                  - Allow
+                  - Block
+              position_1_policy:
+                type: string
+                enum:
+                  - Allow
+                  - Block
+    PutStatusRequest:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - active
+            - paused
+    StatusCascadeResponse:
+      type: object
+      properties:
+        account_id:
+          type: string
+        status:
+          type: string
+          enum:
+            - active
+            - paused
+            - mixed
+        variants:
+          type: array
+          items:
+            type: object
+            properties:
+              page_id:
+                type: string
+                format: uuid
+              name:
+                type: string
+              status:
+                type: string
+                enum:
+                  - active
+                  - paused
+    PostPayoutSetupRequest:
+      type: object
+      required:
+        - provider
+        - experience
+      properties:
+        provider:
+          type: string
+          enum:
+            - stripe_connect
+        experience:
+          type: string
+          enum:
+            - embedded
+            - hosted_invite
+          description: |
+            Mutually-exclusive with `contact`:
+            * `embedded`: do not send `contact` (server returns 400).
+            * `hosted_invite`: `contact.email` is required.
+        contact:
+          type: object
+          description: Required for `hosted_invite`; forbidden for `embedded`.
+          required:
+            - email
+          properties:
+            email:
+              type: string
+              format: email
+            name:
+              type: string
+              nullable: true
+    EmbeddedPayoutSetupResponse:
+      type: object
+      description: 'Present in the response when `experience: "embedded"`.'
+      properties:
+        publishable_key:
+          type: string
+          description: Stripe publishable key for client-side init.
+        client_secret:
+          type: string
+          description: Stripe Connect onboarding session client secret.
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+    HostedInvitePayoutSetupResponse:
+      type: object
+      description: 'Present in the response when `experience: "hosted_invite"`.'
+      properties:
+        invite_id:
+          type: string
+        email:
+          type: string
+          format: email
+        status:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+        billing_contact_id:
+          type: string
+          nullable: true
+    PayoutSetupResponse:
+      type: object
+      properties:
+        provider:
+          type: string
+          enum:
+            - stripe_connect
+        experience:
+          type: string
+          enum:
+            - embedded
+            - hosted_invite
+        setup_id:
+          type: string
+        managed_account_id:
+          type: string
+        manager_account_id:
+          type: string
+        connected_account_id:
+          type: string
+          description: Stripe-issued Connect account ID for the managed merchant.
+        embedded:
+          $ref: '#/components/schemas/EmbeddedPayoutSetupResponse'
+        hosted_invite:
+          $ref: '#/components/schemas/HostedInvitePayoutSetupResponse'
+    PayoutSetupStatusResponse:
+      type: object
+      properties:
+        provider:
+          type: string
+          enum:
+            - stripe_connect
+        setup_id:
+          type: string
+        managed_account_id:
+          type: string
+        manager_account_id:
+          type: string
+        connected_account_id:
+          type: string
+        details_submitted:
+          type: boolean
+        payouts_enabled:
+          type: boolean
+        charges_enabled:
+          type: boolean
+        requirements_currently_due_count:
+          type: integer
+        requirements_eventually_due_count:
+          type: integer
+        requirements_past_due_count:
+          type: integer
+        disabled_reason:
+          type: string
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+    NetworkPrivacyRequestType:
+      type: string
+      enum:
+        - NETWORK_OPT_OUT
+        - NETWORK_DATA_DELETION
+      description: |
+        `NETWORK_OPT_OUT` submits a Rokt Ads network opt-out.
+        `NETWORK_DATA_DELETION` submits the same network suppression action
+        Rokt uses for deleted network user data.
+    NetworkPrivacyIdentifierType:
+      type: string
+      enum:
+        - email
+        - phone
+        - sha256_email
+      description: Identifier type accepted by the downstream network privacy processor.
+    PostNetworkPrivacyRequest:
+      type: object
+      required:
+        - requestType
+      description: |
+        Network-wide privacy request for a consumer identifier.
+
+        Identifier rules:
+        - `NETWORK_OPT_OUT` requires exactly one of `email` or `phone`.
+        - `NETWORK_DATA_DELETION` requires exactly one of `email` or
+          `sha256Email`.
+        - `sha256Email` must be a base64-encoded SHA256 digest.
+      properties:
+        requestType:
+          $ref: '#/components/schemas/NetworkPrivacyRequestType'
+        email:
+          type: string
+          format: email
+          nullable: true
+          description: >-
+            Consumer email address. Supported for opt-out and network data
+            deletion.
+          example: consumer@example.com
+        phone:
+          type: string
+          nullable: true
+          description: Consumer phone number. Supported only for `NETWORK_OPT_OUT`.
+          example: '+15555550100'
+        sha256Email:
+          type: string
+          nullable: true
+          description: >-
+            Base64-encoded SHA256 email digest. Supported only for
+            `NETWORK_DATA_DELETION`.
+          example: kJbnntuJYvQBhPiiHQcz6OSn0EyvzVeOBmtsG2sWkyU=
+    NetworkPrivacyRequestResponse:
+      type: object
+      required:
+        - request_id
+        - request_type
+        - identifier_type
+        - status
+        - message
+      properties:
+        request_id:
+          type: string
+          format: uuid
+          description: Rokt-generated network privacy request ID.
+        request_type:
+          $ref: '#/components/schemas/NetworkPrivacyRequestType'
+        identifier_type:
+          $ref: '#/components/schemas/NetworkPrivacyIdentifierType'
+        status:
+          type: string
+          enum:
+            - submitted
+        downstream_request_id:
+          type: string
+          nullable: true
+          description: Downstream privacy service request ID, when returned.
+        message:
+          type: string
+          example: Network opt-out request submitted to Rokt's privacy/consent service.
+    AccountDataDeletionRequestResponse:
+      type: object
+      required:
+        - request_id
+        - account_id
+        - status
+        - message
+      properties:
+        request_id:
+          type: string
+          format: uuid
+          description: Rokt-generated account data deletion request ID.
+        account_id:
+          type: string
+          pattern: ^[0-9]+$
+          description: Managed merchant account ID targeted by the deletion request.
+          example: <your-account-id>
+        status:
+          type: string
+          enum:
+            - submitted
+        downstream_request_id:
+          type: string
+          nullable: true
+          description: Downstream Data Deletion request or task ID, when returned.
+        message:
+          type: string
+          example: >-
+            Partnership account data deletion request submitted to the Data
+            Deletion API.
+    OperationResponse:
+      type: object
+      properties:
+        operation_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+            - pending
+            - in_progress
+            - completed
+            - failed
+        mode:
+          type: string
+          enum:
+            - sync
+            - async
+        operation_type:
+          type: string
+          example: update_mcl
+        created_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: >-
+            When the operation reached a terminal state. Null while
+            pending/in-progress.
+        retry_count:
+          type: integer
+          description: >-
+            Number of retries the server has performed against the downstream
+            service.
+        next_retry_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: For transient failures, when the next retry is scheduled.
+        response_body:
+          type: object
+          nullable: true
+          description: >-
+            For completed operations, the response payload from the original
+            write call.
+        error:
+          type: string
+          nullable: true
+          description: For failed operations, the last error message captured.
+        request_id:
+          type: string
+          format: uuid
+          nullable: true
+    PartnershipLayoutEditRequest:
+      type: object
+      description: >
+        Merchant layout customization request. All fields optional; only the
+        keys you
+
+        send get applied. Rokt validates them, runs the patch-bump, and
+
+        merges them into the layout's existing configuration.
+
+
+        These properties customize only the specified layout, including its
+
+        supported creative formats. They do not affect other layouts or
+        accounts.
+      properties:
+        primaryColor:
+          type: string
+          pattern: ^#(?:[0-9a-fA-F]{3}){1,2}$
+          description: Hex color (#RGB or
+          example: '#FF6B35'
+        backgroundColor:
+          type: string
+          pattern: ^#(?:[0-9a-fA-F]{3}){1,2}$
+          description: Hex color applied to the outer/main and body container backgrounds.
+          example: '#FFFFFF'
+        textColor:
+          type: string
+          pattern: ^#(?:[0-9a-fA-F]{3}){1,2}$
+          description: >-
+            Hex color applied to all major text components (header, paragraphs,
+            footer).
+          example: '#1A1A1A'
+        borderRadius:
+          type: integer
+          minimum: 0
+          maximum: 24
+          description: >-
+            Border radius in pixels applied to outer/main containers and
+            (Overlay only) the close button.
+          example: 8
+        closeButtonColor:
+          type: string
+          pattern: ^#(?:[0-9a-fA-F]{3}){1,2}$
+          description: >-
+            Hex color applied to the close button (text + border). Overlay only;
+            ignored for Embedded layouts. Once set, this override persists
+            across later edits; the API has no reset path.
+          example: '#666666'
+        headerBackground:
+          type: string
+          pattern: ^#(?:[0-9a-fA-F]{3}){1,2}(?![\s\S])
+          description: >-
+            Hex color for the header bar fill. When unset, Overlay inherits
+            primaryColor and Embedded inherits backgroundColor.
+          example: '#102A43'
+        headerForeground:
+          type: string
+          pattern: ^#(?:[0-9a-fA-F]{3}){1,2}(?![\s\S])
+          description: >-
+            Hex color for the header text only, independent of the body
+            paragraphs. Takes precedence over textColor for the header. On
+            Overlay this also recolors the close icon unless closeButtonColor
+            has been set on this layout in this or an earlier request. The API
+            has no reset path for that persistent override.
+          example: '#FFFFFF'
+        buttonBackground:
+          type: string
+          pattern: ^#(?:[0-9a-fA-F]{3}){1,2}(?![\s\S])
+          description: >-
+            Hex color for the primary call-to-action button's fill and border.
+            The decline button is unaffected, so the two stay visually distinct.
+          example: '#FF6B35'
+        buttonForeground:
+          type: string
+          pattern: ^#(?:[0-9a-fA-F]{3}){1,2}(?![\s\S])
+          description: Hex color for the primary call-to-action button's label text.
+          example: '#FFFFFF'
+        buttonBorderRadius:
+          type: integer
+          minimum: 0
+          maximum: 24
+          description: >-
+            Corner radius in pixels for the call-to-action buttons. Unlike the
+            button colors, this applies to both buttons. Fractions, booleans,
+            and numeric strings are rejected.
+          example: 8
+        fontFamily:
+          type: string
+          enum:
+            - Arial
+            - Times New Roman
+            - Verdana
+            - Georgia
+            - Calibri
+            - Soleil bold
+            - '-apple-system'
+            - system-ui
+          description: >-
+            Font family for all layout text, including call-to-action labels.
+            Must exactly match one of the eight curated names; matching is
+            case-sensitive. Custom or account-installed fonts, quoted names, and
+            CSS fallback stacks are rejected with 422. The name is applied with
+            a fallback; a named face renders when available on the viewer's
+            device. Selecting a family does not upload or download a font file.
+          example: Georgia
+    PartnershipLayoutEditResponse:
+      type: object
+      required:
+        - status
+        - layoutId
+        - layoutTemplateVersion
+      properties:
+        status:
+          type: string
+          example: ok
+        layoutId:
+          type: string
+          format: uuid
+          example: 9d11d8aa-5678-4def-9abc-bbbbccccdddd
+        layoutTemplateVersion:
+          type: string
+          description: |
+            The template version after the patch-bump. May be higher than the
+            stored version if a new patch was published in the meantime.
+          example: 3.0.7
+    AddPartnershipPagesRequest:
+      type: object
+      required:
+        - platform_integration
+        - pages
+      description: |
+        Request body for adding pages to an existing managed account.
+        Mirrors the registration `pages` array shape.
+      properties:
+        platform_integration:
+          type: string
+          description: >-
+            The identifier for your integration (for example,
+            `your-integration-name`). This value is the same for every merchant
+            registered under your integration, and is set when your partnership
+            is configured with Rokt.
+          example: <your-preset-key>
+        pages:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/RegisterPartnershipPage'
+    AddPartnershipPagesResponse:
+      type: object
+      required:
+        - status
+        - pages
+      properties:
+        status:
+          type: string
+          example: ok
+        pages:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegisterPartnershipPageResponse'
+    SwitchPartnershipPageLayoutRequest:
+      type: object
+      required:
+        - platform_integration
+        - layout_type
+      description: |
+        Request body for switching a page's layout type on an existing
+        managed account.
+      properties:
+        platform_integration:
+          type: string
+          description: >-
+            The identifier for your integration (for example,
+            `your-integration-name`). This value is the same for every merchant
+            registered under your integration, and is set when your partnership
+            is configured with Rokt.
+          example: <your-preset-key>
+        layout_type:
+          type: string
+          enum:
+            - Overlay
+            - Embedded
+          description: |
+            The layout style to switch the page to.
+              - `Overlay`: modal that appears over the merchant's page.
+              - `Embedded`: renders inline within an anchor element on the
+                merchant's page (default selector `#rokt-container`).
+            The values a page can switch to are the same set your preset
+            accepts at registration; some integrations support only a
+            subset. Requesting the type the page already has returns `200`
+            as a no-op.
+          example: Embedded
+    SwitchPartnershipPageLayoutResponse:
+      type: object
+      required:
+        - status
+        - page
+      properties:
+        status:
+          type: string
+          description: Always `ok` on success.
+          example: ok
+        page:
+          type: object
+          required:
+            - surface
+            - page_id
+            - layout_id
+            - page_identifier
+          properties:
+            surface:
+              type: string
+              enum:
+                - confirmation
+                - tracking
+                - returns
+              example: confirmation
+            page_id:
+              type: string
+              format: uuid
+              description: Unchanged by the switch.
+              example: bfb5b9be-1234-4abc-9def-aaaabbbbcccc
+            layout_id:
+              type: string
+              format: uuid
+              description: >
+                The layout now active on the page. Use this value for subsequent
+
+                theme edits at `PATCH
+                /v1/partnership/accounts/{account_id}/layouts/{layout_id}`;
+
+                a `layout_id` captured before the switch refers to the
+
+                inactive layout.
+              example: f8700369-5678-4def-9abc-bbbbccccdddd
+            page_identifier:
+              type: string
+              description: |
+                Unchanged by the switch; your SDK code keeps passing the same
+                identifier into `selectPlacements`.
+              example: confirmation_page

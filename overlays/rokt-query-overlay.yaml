@@ -1,0 +1,37 @@
+overlay: 1.0.0
+info:
+  title: Rokt Query API - API Evangelist overlay
+  version: 1.0.0
+extends: openapi/rokt-query-api-openapi.yml
+actions:
+- target: $.info
+  update:
+    x-api-evangelist:
+      provider: rokt
+      profiled: '2026-10-21'
+      llms: llms/rokt-llms.txt
+      mcp: mcp/rokt-mcp.yml
+- target: $.paths['/v1/query/accounts/'].get
+  update:
+    x-mcp-tool: rokt_query_get_user_accounts_v1_query_accounts_get
+    x-agent-safety: read
+- target: $.paths['/v1/query/accounts/{account_id}'].get
+  update:
+    x-mcp-tool: rokt_query_get_account_v1_query_accounts_account_id_get
+    x-agent-safety: read
+- target: $.paths['/v1/query/accounts/{account_id}/campaigns/'].post
+  update:
+    x-mcp-tool: rokt_query_get_advertiser_report_v1_query_accounts_account_id_ca
+    x-agent-safety: write
+- target: $.paths['/v1/query/accounts/{account_id}/campaigns/help'].get
+  update:
+    x-mcp-tool: rokt_query_get_help_v1_query_accounts_account_id_campaigns_help_
+    x-agent-safety: read
+- target: $.paths['/v1/query/accounts/{account_id}/transactions'].post
+  update:
+    x-mcp-tool: rokt_query_get_partner_report_v1_query_accounts_account_id_trans
+    x-agent-safety: write
+- target: $.paths['/v1/query/accounts/{account_id}/transactions/help'].get
+  update:
+    x-mcp-tool: rokt_query_get_help_v1_query_accounts_account_id_transactions_he
+    x-agent-safety: read

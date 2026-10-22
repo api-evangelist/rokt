@@ -1,0 +1,469 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/rokt/main/json-schema/rokt-product-schema.json",
+  "title": "Product",
+  "x-generated": "2026-10-21",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/rokt-catalog-api-openapi.yml#/components/schemas/Product",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "readOnly": true
+    },
+    "shop": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/Shop"
+        }
+      ],
+      "readOnly": true
+    },
+    "variants": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Variant"
+      },
+      "readOnly": true
+    },
+    "body_html": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 60000
+    },
+    "handle": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 258
+    },
+    "image_src": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 1043
+    },
+    "images": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Image"
+      }
+    },
+    "options": {
+      "description": "Product options (for example size or color) and their values, or `null` when the product has none."
+    },
+    "product_type": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 1044
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "readOnly": true
+    },
+    "published_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "status": {
+      "$ref": "#/$defs/Status2eaEnum"
+    },
+    "title": {
+      "type": "string",
+      "maxLength": 1029
+    },
+    "vendor": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 227
+    },
+    "tags": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 63750
+    },
+    "permalink": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uri",
+      "maxLength": 2000
+    },
+    "number_of_reviews": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "maximum": 2147483647,
+      "minimum": -2147483648
+    },
+    "star_rating": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "format": "double"
+    }
+  },
+  "required": [
+    "id",
+    "shop",
+    "title",
+    "updated_at",
+    "variants"
+  ],
+  "$defs": {
+    "Image": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "position": {
+          "type": "integer"
+        },
+        "src": {
+          "type": "string",
+          "format": "uri"
+        },
+        "display_src": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        },
+        "width": {
+          "type": "integer"
+        },
+        "height": {
+          "type": "integer"
+        },
+        "canal_variant_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "readOnly": true
+        },
+        "variant_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "origin_supplier_image_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid"
+        }
+      },
+      "required": [
+        "canal_variant_ids",
+        "src"
+      ]
+    },
+    "Shop": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true
+        },
+        "email": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "readOnly": true
+        },
+        "phone": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 128
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 129
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 6144
+        },
+        "myshopify_domain": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "province": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 122
+        },
+        "country": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "domain": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 128
+        },
+        "display_domain": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "readOnly": true
+        },
+        "privacy_policy_url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri",
+          "maxLength": 500
+        },
+        "terms_of_service_url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri",
+          "maxLength": 500
+        }
+      },
+      "required": [
+        "country",
+        "display_domain",
+        "email",
+        "id",
+        "myshopify_domain",
+        "name"
+      ]
+    },
+    "Status2eaEnum": {
+      "enum": [
+        "active",
+        "draft",
+        "archived",
+        "unlisted"
+      ],
+      "type": "string",
+      "description": "* `active` - active\n* `draft` - draft\n* `archived` - archived\n* `unlisted` - unlisted"
+    },
+    "Variant": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true
+        },
+        "shop": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/Shop"
+            }
+          ],
+          "readOnly": true
+        },
+        "inventory_policy": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 123
+        },
+        "inventory_quantity": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "maximum": 2147483647,
+          "minimum": -2147483648
+        },
+        "inventory_item_cost": {
+          "type": "number",
+          "format": "double"
+        },
+        "option1": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 255
+        },
+        "option2": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 256
+        },
+        "option3": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 257
+        },
+        "position": {
+          "type": "integer",
+          "readOnly": true
+        },
+        "price": {
+          "type": "string",
+          "format": "decimal",
+          "pattern": "^-?\\d{0,10}(?:\\.\\d{0,2})?$",
+          "description": "The price of the variant to be sold at."
+        },
+        "compare_at_price": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 128
+        },
+        "origin_supplier_currency": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "readOnly": true
+        },
+        "title": {
+          "type": "string"
+        },
+        "sku": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "readOnly": true
+        },
+        "upc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 253
+        },
+        "grams": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        },
+        "weight": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        },
+        "weight_unit": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 3
+        },
+        "pause_selling": {
+          "type": "boolean"
+        },
+        "origin_supplier_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "readOnly": true
+        },
+        "origin_supplier_name": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "readOnly": true
+        },
+        "available_for_ordering": {
+          "type": "boolean",
+          "readOnly": true
+        },
+        "supplier_sku": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "readOnly": true
+        },
+        "is_exclusive_offer": {
+          "type": "boolean",
+          "description": "An exclusive offer is a variant that is discounted lower than the variant's actual price on the supplier's website.",
+          "readOnly": true
+        },
+        "sup_price": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The connected supplier variant's price, sourced from the supplier directly.",
+          "readOnly": true
+        },
+        "sup_compare_at_price": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The connected supplier variant's compare-at price, sourced from the supplier directly.",
+          "readOnly": true
+        }
+      },
+      "required": [
+        "available_for_ordering",
+        "id",
+        "is_exclusive_offer",
+        "origin_supplier_currency",
+        "origin_supplier_id",
+        "origin_supplier_name",
+        "position",
+        "price",
+        "shop",
+        "sku",
+        "sup_compare_at_price",
+        "sup_price",
+        "supplier_sku",
+        "title"
+      ]
+    }
+  }
+}

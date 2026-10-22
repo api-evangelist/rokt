@@ -1,0 +1,640 @@
+name: Rokt MCP (candidate)
+type: MCPServer
+generated: '2026-10-21'
+method: derived
+source:
+- openapi/rokt-catalog-api-openapi.yml
+- openapi/rokt-partnerships-api-openapi.yml
+- openapi/rokt-query-api-openapi.yml
+- openapi/rokt-session-api-openapi.yml
+status: candidate
+description: 'No official Rokt MCP server was found. Checked 2026-10-21: docs.rokt.com/mcp -> 404, docs.rokt.com/.well-known/mcp.json -> 404, docs.rokt.com/llms.txt (200) does not mention MCP, the ROKT
+  GitHub org (22 public repos) has no MCP repository, and web searches turned up nothing. The tools below are a candidate set derived 1:1 from the four saved OpenAPI contracts.'
+deployment:
+  mode: none
+  auth: unknown
+  verified: derived
+evidence:
+- url: https://docs.rokt.com/mcp
+  status: 404
+- url: https://docs.rokt.com/.well-known/mcp.json
+  status: 404
+- url: https://docs.rokt.com/llms.txt
+  status: 200
+  note: no MCP mention
+- url: https://github.com/ROKT
+  note: 22 public repos, none MCP
+auth_upstream:
+  catalog: API key headers X-CANAL-APP-ID + X-CANAL-APP-TOKEN
+  partnerships: Bearer JWT exchanged from client_id/client_secret issued at onboarding
+  query: Bearer JWT (Rokt JWT or encoded OAuth2 token)
+  session: HTTP Basic base64(rpub:rsec)
+tools:
+- name: rokt_catalog_csv_download_shopkeep_line_items_retrieve
+  description: Download Partner line items CSV
+  api: catalog
+  operationId: csv_download_shopkeep_line_items_retrieve
+  method: GET
+  path: /csv/download_shopkeep_line_items/
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_catalog_csv_download_unfulfilled_supplier_line_items_retrie
+  description: Download unfulfilled Brand line items CSV
+  api: catalog
+  operationId: csv_download_unfulfilled_supplier_line_items_retrieve
+  method: GET
+  path: /csv/download_unfulfilled_supplier_line_items/
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_catalog_csv_product_template_retrieve
+  description: Download the product CSV template
+  api: catalog
+  operationId: csv_product_template_retrieve
+  method: GET
+  path: /csv/product/template/
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_catalog_fulfillments_list
+  description: List fulfillments
+  api: catalog
+  operationId: fulfillments_list
+  method: GET
+  path: /fulfillments/
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_catalog_fulfillments_create
+  description: Create a fulfillment
+  api: catalog
+  operationId: fulfillments_create
+  method: POST
+  path: /fulfillments/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_fulfillments_retrieve
+  description: Retrieve a fulfillment
+  api: catalog
+  operationId: fulfillments_retrieve
+  method: GET
+  path: /fulfillments/{id}/
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_catalog_fulfillments_update
+  description: Update a fulfillment
+  api: catalog
+  operationId: fulfillments_update
+  method: PUT
+  path: /fulfillments/{id}/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_fulfillments_partial_update
+  description: Partially update a fulfillment
+  api: catalog
+  operationId: fulfillments_partial_update
+  method: PATCH
+  path: /fulfillments/{id}/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_markets_prices_import_create
+  description: Import market prices
+  api: catalog
+  operationId: markets_prices_import_create
+  method: POST
+  path: /markets/prices/import/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_max_shipping_rates_create
+  description: Estimate max shipping rates
+  api: catalog
+  operationId: max_shipping_rates_create
+  method: POST
+  path: /max-shipping-rates/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_orders_list
+  description: List orders
+  api: catalog
+  operationId: orders_list
+  method: GET
+  path: /orders/
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_catalog_orders_create
+  description: Create an order
+  api: catalog
+  operationId: orders_create
+  method: POST
+  path: /orders/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_orders_retrieve
+  description: Retrieve an order
+  api: catalog
+  operationId: orders_retrieve
+  method: GET
+  path: /orders/{id}/
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_catalog_orders_cancel_create
+  description: Cancel an order
+  api: catalog
+  operationId: orders_cancel_create
+  method: POST
+  path: /orders/{id}/cancel/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_orders_create_or_get_create
+  description: Create or get an order
+  api: catalog
+  operationId: orders_create_or_get_create
+  method: POST
+  path: /orders/create_or_get/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_orders_v1_create_and_charge_create
+  description: Create and charge an order
+  api: catalog
+  operationId: orders_v1_create_and_charge_create
+  method: POST
+  path: /orders/v1/create-and-charge/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_orders_v1_initialize_order_create
+  description: Initialize an order
+  api: catalog
+  operationId: orders_v1_initialize_order_create
+  method: POST
+  path: /orders/v1/initialize-order/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_products_list
+  description: List products
+  api: catalog
+  operationId: products_list
+  method: GET
+  path: /products/
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_catalog_products_create
+  description: Create a product
+  api: catalog
+  operationId: products_create
+  method: POST
+  path: /products/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_products_retrieve
+  description: Retrieve a product
+  api: catalog
+  operationId: products_retrieve
+  method: GET
+  path: /products/{id}/
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_catalog_products_update
+  description: Update a product
+  api: catalog
+  operationId: products_update
+  method: PUT
+  path: /products/{id}/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_products_partial_update
+  description: Partially update a product
+  api: catalog
+  operationId: products_partial_update
+  method: PATCH
+  path: /products/{id}/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_products_destroy
+  description: Delete a product
+  api: catalog
+  operationId: products_destroy
+  method: DELETE
+  path: /products/{id}/
+  readOnlyHint: false
+  destructiveHint: true
+- name: rokt_catalog_products_reorder_variants_create
+  description: Reorder product variants
+  api: catalog
+  operationId: products_reorder_variants_create
+  method: POST
+  path: /products/{id}/reorder_variants/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_products_resync_create
+  description: Resync a product
+  api: catalog
+  operationId: products_resync_create
+  method: POST
+  path: /products/{id}/resync/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_products_upsell_products_list
+  description: List upsell products
+  api: catalog
+  operationId: products_upsell_products_list
+  method: GET
+  path: /products/upsell_products/
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_catalog_refunds_list
+  description: List refunds
+  api: catalog
+  operationId: refunds_list
+  method: GET
+  path: /refunds/
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_catalog_refunds_create
+  description: Create a refund
+  api: catalog
+  operationId: refunds_create
+  method: POST
+  path: /refunds/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_refunds_retrieve
+  description: Retrieve a refund
+  api: catalog
+  operationId: refunds_retrieve
+  method: GET
+  path: /refunds/{id}/
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_catalog_returns_list
+  description: List returns
+  api: catalog
+  operationId: returns_list
+  method: GET
+  path: /returns/
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_catalog_returns_create
+  description: Create a return
+  api: catalog
+  operationId: returns_create
+  method: POST
+  path: /returns/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_returns_retrieve
+  description: Retrieve a return
+  api: catalog
+  operationId: returns_retrieve
+  method: GET
+  path: /returns/{id}/
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_catalog_returns_close_create
+  description: Close a return
+  api: catalog
+  operationId: returns_close_create
+  method: POST
+  path: /returns/{id}/close/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_returns_update_tracking_create
+  description: Update return tracking
+  api: catalog
+  operationId: returns_update_tracking_create
+  method: POST
+  path: /returns/{id}/update_tracking/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_shipping_rates_create
+  description: Calculate shipping rates
+  api: catalog
+  operationId: shipping_rates_create
+  method: POST
+  path: /shipping-rates/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_shops_list
+  description: List shops
+  api: catalog
+  operationId: shops_list
+  method: GET
+  path: /shops/
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_catalog_shops_create
+  description: Create shop connections
+  api: catalog
+  operationId: shops_create
+  method: POST
+  path: /shops/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_shops_retrieve
+  description: Retrieve a shop
+  api: catalog
+  operationId: shops_retrieve
+  method: GET
+  path: /shops/{id}/
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_catalog_tax_and_shipping_calculate_create
+  description: Calculate tax and shipping
+  api: catalog
+  operationId: tax_and_shipping_calculate_create
+  method: POST
+  path: /tax-and-shipping/calculate/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_tax_and_shipping_v1_calculate_create
+  description: Calculate tax and shipping (v1)
+  api: catalog
+  operationId: tax_and_shipping_v1_calculate_create
+  method: POST
+  path: /tax-and-shipping/v1/calculate/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_tax_calculate_create
+  description: Calculate tax
+  api: catalog
+  operationId: tax_calculate_create
+  method: POST
+  path: /tax/calculate/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_variants_list
+  description: List variants
+  api: catalog
+  operationId: variants_list
+  method: GET
+  path: /variants/
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_catalog_variants_create
+  description: Create a variant
+  api: catalog
+  operationId: variants_create
+  method: POST
+  path: /variants/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_variants_retrieve
+  description: Retrieve a variant
+  api: catalog
+  operationId: variants_retrieve
+  method: GET
+  path: /variants/{id}/
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_catalog_variants_update
+  description: Update a variant
+  api: catalog
+  operationId: variants_update
+  method: PUT
+  path: /variants/{id}/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_variants_partial_update
+  description: Partially update a variant
+  api: catalog
+  operationId: variants_partial_update
+  method: PATCH
+  path: /variants/{id}/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_variants_destroy
+  description: Delete a variant
+  api: catalog
+  operationId: variants_destroy
+  method: DELETE
+  path: /variants/{id}/
+  readOnlyHint: false
+  destructiveHint: true
+- name: rokt_catalog_webhooks_list
+  description: List webhooks
+  api: catalog
+  operationId: webhooks_list
+  method: GET
+  path: /webhooks/
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_catalog_webhooks_create
+  description: Create a webhook
+  api: catalog
+  operationId: webhooks_create
+  method: POST
+  path: /webhooks/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_webhooks_retrieve
+  description: Retrieve a webhook
+  api: catalog
+  operationId: webhooks_retrieve
+  method: GET
+  path: /webhooks/{id}/
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_catalog_webhooks_update
+  description: Update a webhook
+  api: catalog
+  operationId: webhooks_update
+  method: PUT
+  path: /webhooks/{id}/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_webhooks_partial_update
+  description: Partially update a webhook
+  api: catalog
+  operationId: webhooks_partial_update
+  method: PATCH
+  path: /webhooks/{id}/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_catalog_webhooks_destroy
+  description: Delete a webhook
+  api: catalog
+  operationId: webhooks_destroy
+  method: DELETE
+  path: /webhooks/{id}/
+  readOnlyHint: false
+  destructiveHint: true
+- name: rokt_partnerships_register_partnership
+  description: Register a managed merchant
+  api: partnerships
+  operationId: registerPartnership
+  method: POST
+  path: /v1/accounts/register/partnership
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_partnerships_list_managed_accounts
+  description: List managed accounts
+  api: partnerships
+  operationId: listManagedAccounts
+  method: GET
+  path: /v1/partnership/accounts
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_partnerships_list_vertical_mappings
+  description: List seeded vertical mappings
+  api: partnerships
+  operationId: listVerticalMappings
+  method: GET
+  path: /v1/partnership/vertical-mappings
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_partnerships_get_marketplace_controls
+  description: Get marketplace controls
+  api: partnerships
+  operationId: getMarketplaceControls
+  method: GET
+  path: /v1/partnership/accounts/{account_id}/marketplacecontrolslists
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_partnerships_put_marketplace_controls
+  description: Update marketplace controls
+  api: partnerships
+  operationId: putMarketplaceControls
+  method: PUT
+  path: /v1/partnership/accounts/{account_id}/marketplacecontrolslists
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_partnerships_patch_partnership_layout
+  description: Customize a partnership layout
+  api: partnerships
+  operationId: patchPartnershipLayout
+  method: PATCH
+  path: /v1/partnership/accounts/{account_id}/layouts/{layout_id}
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_partnerships_add_partnership_pages
+  description: Add pages to an existing managed account
+  api: partnerships
+  operationId: addPartnershipPages
+  method: POST
+  path: /v1/partnership/accounts/{account_id}/pages
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_partnerships_switch_partnership_page_layout
+  description: Switch a page's layout type
+  api: partnerships
+  operationId: switchPartnershipPageLayout
+  method: PUT
+  path: /v1/partnership/accounts/{account_id}/pages/{page_id}
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_partnerships_get_partnership_status
+  description: Get partnership status
+  api: partnerships
+  operationId: getPartnershipStatus
+  method: GET
+  path: /v1/partnership/accounts/{account_id}/status
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_partnerships_put_partnership_status
+  description: Pause or resume partnership
+  api: partnerships
+  operationId: putPartnershipStatus
+  method: PUT
+  path: /v1/partnership/accounts/{account_id}/status
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_partnerships_post_payout_setup
+  description: Start Stripe Connect payout setup
+  api: partnerships
+  operationId: postPayoutSetup
+  method: POST
+  path: /v1/partnership/accounts/{account_id}/payout-setup
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_partnerships_get_payout_setup_status
+  description: Get payout setup status
+  api: partnerships
+  operationId: getPayoutSetupStatus
+  method: GET
+  path: /v1/partnership/accounts/{account_id}/payout-setup/status
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_partnerships_post_network_privacy_request
+  description: Submit a network privacy request
+  api: partnerships
+  operationId: postNetworkPrivacyRequest
+  method: POST
+  path: /v1/partnership/network-privacy-requests
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_partnerships_post_account_data_deletion_request
+  description: Submit account-level data deletion
+  api: partnerships
+  operationId: postAccountDataDeletionRequest
+  method: POST
+  path: /v1/partnership/accounts/{account_id}/data-deletion-requests
+  readOnlyHint: false
+  destructiveHint: true
+- name: rokt_partnerships_get_operation
+  description: Poll an operation by ID
+  api: partnerships
+  operationId: getOperation
+  method: GET
+  path: /v1/partnership/operations/{operation_id}
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_query_get_user_accounts_v1_query_accounts_get
+  description: Get User Accounts
+  api: query
+  operationId: get_user_accounts_v1_query_accounts__get
+  method: GET
+  path: /v1/query/accounts/
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_query_get_account_v1_query_accounts_account_id_get
+  description: Get Account
+  api: query
+  operationId: get_account_v1_query_accounts__account_id__get
+  method: GET
+  path: /v1/query/accounts/{account_id}
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_query_get_advertiser_report_v1_query_accounts_account_id_ca
+  description: Get Advertiser Report
+  api: query
+  operationId: get_advertiser_report_v1_query_accounts__account_id__campaigns__post
+  method: POST
+  path: /v1/query/accounts/{account_id}/campaigns/
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_query_get_help_v1_query_accounts_account_id_campaigns_help_
+  description: Get Help
+  api: query
+  operationId: get_help_v1_query_accounts__account_id__campaigns_help_get
+  method: GET
+  path: /v1/query/accounts/{account_id}/campaigns/help
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_query_get_partner_report_v1_query_accounts_account_id_trans
+  description: Get Partner Report
+  api: query
+  operationId: get_partner_report_v1_query_accounts__account_id__transactions_post
+  method: POST
+  path: /v1/query/accounts/{account_id}/transactions
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_query_get_help_v1_query_accounts_account_id_transactions_he
+  description: Get Help
+  api: query
+  operationId: get_help_v1_query_accounts__account_id__transactions_help_get
+  method: GET
+  path: /v1/query/accounts/{account_id}/transactions/help
+  readOnlyHint: true
+  destructiveHint: false
+- name: rokt_session_select_offers
+  description: Request offers
+  api: session
+  operationId: selectOffers
+  method: POST
+  path: /v2/sessions/offers
+  readOnlyHint: false
+  destructiveHint: false
+- name: rokt_session_record_events
+  description: Report events
+  api: session
+  operationId: recordEvents
+  method: POST
+  path: /v2/sessions/events
+  readOnlyHint: false
+  destructiveHint: false

@@ -1,0 +1,15 @@
+name: Rokt agent skills
+type: AgentSkill
+generated: '2026-10-21'
+method: generated
+source:
+  - openapi/rokt-session-api-openapi.yml
+  - openapi/rokt-query-api-openapi.yml
+  - openapi/rokt-partnerships-api-openapi.yml
+  - openapi/rokt-catalog-api-openapi.yml
+note: Rokt publishes no skills or AGENTS.md (docs.rokt.com/AGENTS.md returned 404 on 2026-10-21). These skills are generated from the saved OpenAPI contracts.
+skills:
+  - {name: rokt-session-offers, path: skills/rokt-session-offers.md}
+  - {name: rokt-reporting-query, path: skills/rokt-reporting-query.md}
+  - {name: rokt-partnership-onboarding, path: skills/rokt-partnership-onboarding.md}
+  - {name: rokt-catalog-order, path: skills/rokt-catalog-order.md}

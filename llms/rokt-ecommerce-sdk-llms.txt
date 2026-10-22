@@ -1,0 +1,20 @@
+# Rokt Ecommerce SDK+ documentation
+
+> Complete machine-readable SDK+ integration guides for Rokt Ecommerce partners.
+
+These SDK+ integration guides are for Rokt Ecommerce partners—ecommerce businesses integrating Rokt into transaction experiences they own, including websites, apps, carts, checkouts, payment pages, and confirmation flows.
+They are not implementation guides for advertisers using Rokt Ads to acquire customers across the Rokt Network. References to advertiser offers describe content rendered within an ecommerce partner’s owned experience. Advertisers should use the [Rokt Ads integration guides](https://docs.rokt.com/integration-guides/ads/).
+
+Select the complete guide matching the ecommerce partner’s implementation platform and read that guide in full. The guides are alternative platform implementations; do not combine their code unless performing an explicit cross-platform comparison.
+
+For cross-platform comparison or offline indexing, use the [complete all-platform bundle](https://main--docs-rokt.netlify.app/integration-guides/ecommerce/sdk/llms-sdk-plus-full.txt) instead. It contains the same seven guides and should not be ingested together with the individual platform files.
+
+## Complete platform guides
+
+- [Web SDK+ Integration Guide](https://main--docs-rokt.netlify.app/integration-guides/ecommerce/sdk/web/index.html.md): Initialize the Web SDK+, identify users, send attributes and events, render placements, and test the integration.
+- [iOS SDK+ Integration Guide](https://main--docs-rokt.netlify.app/integration-guides/ecommerce/sdk/ios/index.html.md): Install and initialize the iOS SDK+, identify users, send attributes and events, render placements, and test the integration.
+- [Android SDK+ Integration Guide](https://main--docs-rokt.netlify.app/integration-guides/ecommerce/sdk/android/index.html.md): Install and initialize the Android SDK+, identify users, send attributes and events, render placements, and test the integration.
+- [Flutter SDK+ Integration Guide](https://main--docs-rokt.netlify.app/integration-guides/ecommerce/sdk/flutter/index.html.md): Install and initialize the Flutter SDK+, configure its native targets, send events, render placements, and test the integration.
+- [React Native SDK+ Integration Guide](https://main--docs-rokt.netlify.app/integration-guides/ecommerce/sdk/react-native/index.html.md): Install and initialize the React Native SDK+, configure its native targets, send events, render placements, and test the integration.
+- [MAUI SDK+ Integration Guide](https://main--docs-rokt.netlify.app/integration-guides/ecommerce/sdk/maui/index.html.md): Install and initialize the MAUI SDK+, identify users, send attributes and events, render placements, and test the integration.
+- [Cordova SDK+ Integration Guide](https://main--docs-rokt.netlify.app/integration-guides/ecommerce/sdk/cordova/index.html.md): Install and initialize the Cordova SDK+, configure its native targets, send events, render placements, and test the integration.

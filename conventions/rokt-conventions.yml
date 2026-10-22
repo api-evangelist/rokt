@@ -1,0 +1,110 @@
+generated: '2026-10-21'
+method: searched
+source:
+- https://docs.rokt.com/developer-reference/apis/partnerships-api/authentication/
+- https://docs.rokt.com/developer-reference/apis/partnerships-api/concepts/idempotency/
+- https://docs.rokt.com/developer-reference/apis/partnerships-api/concepts/dry-run/
+- https://docs.rokt.com/developer-reference/apis/partnerships-api/errors/
+- https://docs.rokt.com/developer-reference/apis/partnerships-api/rate-limits/
+- https://docs.rokt.com/developer-reference/apis/partnerships-api/concepts/operation-polling/
+- https://docs.rokt.com/developer-reference/apis/partnerships-api/workflows/pausing-resuming/
+- https://docs.rokt.com/developer-reference/apis/reporting-apis/query-api/
+- https://docs.rokt.com/integration-guides/ecommerce/catalog/webhooks/
+auth:
+  summary: 'Partnerships and Query APIs: OAuth2 client-credentials bearer token. Session API: HTTP Basic (rpub:rsec).
+    Catalog API: x-canal-app-id + x-canal-app-token headers.'
+  see: authentication/rokt-authentication.yml
+idempotency:
+  coverage: partial
+  header: Idempotency-Key
+  format: UUID (RFC 4122)
+  retention: ~24 hours
+  key_scope: per managed account
+  scope:
+  - putMarketplaceControls
+  - putPartnershipStatus
+  - patchPartnershipLayout
+  - addPartnershipPages
+  - switchPartnershipPageLayout
+  - postPayoutSetup
+  - postAccountDataDeletionRequest
+  excluded:
+  - registerPartnership (uses external_account_id instead)
+  - postNetworkPrivacyRequest (does not take Idempotency-Key)
+  - all Catalog, Query and Session API writes (no idempotency mechanism documented)
+  notes: '"Writes to the managed-account operations require an Idempotency-Key header, except supported dry_run=true
+    validation requests." Missing key on a real write returns 400; same key in-flight with different body returns
+    409 IdempotencyConflict.'
+dry_run:
+  supported: partial
+  param: dry_run=true
+  operations:
+  - putMarketplaceControls
+  - putPartnershipStatus
+  - postAccountDataDeletionRequest
+  rejected_with_400:
+  - patchPartnershipLayout
+  - addPartnershipPages
+  - switchPartnershipPageLayout
+  - postPayoutSetup
+  ignored:
+  - registerPartnership
+  - postNetworkPrivacyRequest
+  source: https://docs.rokt.com/developer-reference/apis/partnerships-api/concepts/dry-run/
+async_operations:
+  header: X-Operation-Id
+  poll: getOperation
+  prefer: 'Prefer: respond-async (501 when not enabled)'
+  source: https://docs.rokt.com/developer-reference/apis/partnerships-api/concepts/operation-polling/
+request_id:
+  request_header: X-Request-Id (optional correlation ID)
+  response: request_id in envelope and X-Request-Id response header
+error_envelope:
+  shape: '{status, error, message, request_id, data}'
+  see: errors/rokt-problem-types.yml
+rate_limit_signaling:
+  status: 429
+  headers:
+  - Retry-After
+  see: rate-limits/rokt-rate-limits.yml
+versioning:
+  style: URL path major version (/v1/partnership, /v1/query, /v2/sessions)
+  see: lifecycle/rokt-lifecycle.yml
+webhooks:
+  api: Catalog API
+  signature: x-canal-event-hash = HMAC-SHA256 of the request body keyed with the API token
+  dedup: x-canal-webhook-id (unique per delivery)
+  source: https://docs.rokt.com/integration-guides/ecommerce/catalog/webhooks/
+reversibility:
+  status: documented
+  surfaces:
+  - surface: Partnership status (pause)
+    operation: putPartnershipStatus
+    reversal: 'putPartnershipStatus with {"status": "active"}'
+    window: null
+    grade: documented
+    docs: https://docs.rokt.com/developer-reference/apis/partnerships-api/workflows/pausing-resuming/
+    note: Pause and resume are the same PUT in opposite directions; no time window is stated.
+  - surface: Marketplace controls list
+    operation: putMarketplaceControls
+    reversal: putMarketplaceControls with the prior list (full-replace PUT)
+    window: null
+    grade: documented
+    note: Set semantics; reverting means re-PUTting the previous state. No window stated.
+  - surface: Catalog orders
+    operation: orders_create
+    reversal: orders_cancel_create
+    window: null
+    grade: documented
+    note: Cancel operation exists in the Catalog OpenAPI; no cancellation window found in docs.
+  - surface: Catalog charges
+    operation: orders_v1_create_and_charge_create
+    reversal: refunds_create
+    window: null
+    grade: documented
+    note: Refund operation exists in the Catalog OpenAPI; no refund window found in docs.
+  - surface: Account data deletion / network privacy requests
+    operation: postAccountDataDeletionRequest
+    reversal: null
+    grade: none
+    note: No reversal documented.

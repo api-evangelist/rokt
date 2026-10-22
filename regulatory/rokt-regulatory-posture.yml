@@ -1,0 +1,88 @@
+generated: '2026-10-21'
+method: searched
+source:
+- https://www.rokt.com/policies/privacy-policy
+- https://www.rokt.com/policies/rokt-subprocessors
+- https://www.rokt.com/policies/data-processing-agreement
+signals:
+  data_subject_request:
+    url: https://www.rokt.com/policies/privacy-policy
+    section: How to exercise your privacy rights (including through an authorized agent)
+    channel: Privacy Request Webform; privacy@rokt.com
+    rights_named: [access, copies, rectification, deletion, restriction, opt-out of profiling or automated decision-making, limit use of sensitive personal information, withdraw consent, complaint to a Data Protection Authority]
+    evidence:
+    - source: https://www.rokt.com/policies/privacy-policy
+      http_status: 200
+      fetched: '2026-10-21'
+      quote: To exercise one or more of these rights, or to ask a question about these rights or any other provision of this Privacy Policy, or about our processing of your Personal Information, please fill out the Privacy Request Webform or send an email to privacy@rokt.com .
+    - source: https://www.rokt.com/policies/privacy-policy
+      http_status: 200
+      fetched: '2026-10-21'
+      quote: Where provided for by applicable law where you are located, you may have a number of rights regarding the processing of your Personal Information, including some or all of the following rights
+    note: Rights are conditional on local law ("some or all"); two request channels are named (webform and email), plus an authorized-agent route in the section heading. No response SLA was found on the page.
+  subprocessors:
+    url: https://www.rokt.com/policies/rokt-subprocessors
+    section: Rokt Subprocessors
+    evidence:
+    - source: https://www.rokt.com/policies/rokt-subprocessors
+      http_status: 200
+      fetched: '2026-10-21'
+      quote: If we do not receive a reasonable objection from you within 30 days of appointing a new subprocessor and updating this list, you will be deemed to have approved the use of such subprocessor.
+    - source: https://www.rokt.com/policies/data-processing-agreement
+      http_status: 200
+      fetched: '2026-10-21'
+      quote: Rokt SG shall however inform the Partner when it adds to or removes the subprocessors (which may be done via a website link notified to the Partner) in order to give the Partner the opportunity to object to the appointment of the subprocessor.
+    note: A public subprocessor list exists, with a 30-day objection window after a new subprocessor is appointed (deemed approval otherwise). Customers are asked to monitor the list; notice may be given only via the website link. A separate internal-subprocessors page (/policies/rokt-internal-subprocessors) is listed in the sitemap and was not read here.
+  incident_notification:
+    url: https://www.rokt.com/policies/data-processing-agreement
+    section: 4.6 Security incidents
+    evidence:
+    - source: https://www.rokt.com/policies/data-processing-agreement
+      http_status: 200
+      fetched: '2026-10-21'
+      quote: Upon becoming aware of a confirmed Security Incident, Rokt SG shall inform the Partner without undue delay and shall provide all such timely information and cooperation as the Partner may reasonably require in order for the Partner to fulfil its data breach reporting obligations
+    note: Contractual breach notice in the UK/European DPA, triggered by a "confirmed" incident, "without undue delay" with no fixed hour count stated.
+  exit_assistance:
+    url: https://www.rokt.com/policies/data-processing-agreement
+    section: 4.7 Deletion or return of Partner European Personal Data
+    evidence:
+    - source: https://www.rokt.com/policies/data-processing-agreement
+      http_status: 200
+      fetched: '2026-10-21'
+      quote: Upon termination or expiry of the ESA, Rokt SG shall (if the Partner so requests) destroy or return to the Partner all Partner European Personal Data (including all copies of the same) in its possession or control
+    note: Return-or-destroy on request at end of contract, limited to data where Rokt acts as processor; it does not apply where Rokt is a controller of Referral Data or where law requires Rokt to keep the data. No export format or timeline is stated.
+  data_retention:
+    url: https://www.rokt.com/policies/privacy-policy
+    section: Data retention
+    evidence:
+    - source: https://www.rokt.com/policies/privacy-policy
+      http_status: 200
+      fetched: '2026-10-21'
+      quote: Rokt sets data retention periods in consultation with its Partners and Advertisers in determining how long to retain the Personal Information about you supplied to us by them, subject to you exercising your lawful data subject rights
+    note: Retention periods are set with Partners and Advertisers, not stated as fixed durations. Backup copies that cannot be deleted are isolated until deletion is possible.
+  age_assurance:
+    url: https://www.rokt.com/policies/privacy-policy
+    section: Children’s privacy
+    evidence:
+    - source: https://www.rokt.com/policies/privacy-policy
+      http_status: 200
+      fetched: '2026-10-21'
+      quote: Rokt does not allow advertisements to be targeted at individuals under the age of 16. Rokt does not knowingly collect Personal Information from or about children under the age of 13.
+    - source: https://www.rokt.com/policies/privacy-policy
+      http_status: 200
+      fetched: '2026-10-21'
+      quote: If we learn that we have collected Personal Information of a child under the age of 13, we will delete that data from our systems.
+    note: Age limits are stated as policy (no ad targeting under 16, no knowing collection under 13, deletion if found). The page names no age-verification mechanism.
+  ai_transparency:
+    url: https://www.rokt.com/policies/privacy-policy
+    section: Additional disclosures in relation to the mParticle Platform
+    evidence:
+    - source: https://www.rokt.com/policies/privacy-policy
+      http_status: 200
+      fetched: '2026-10-21'
+      quote: distribute such data to various service providers, including analytics, artificial intelligence, monetization, data warehousing and other services, all through the use of our core customer data service, our data analytics service, and Cortex, a machine learning or artificial intelligence service
+    - source: https://www.rokt.com/policies/privacy-policy
+      http_status: 200
+      fetched: '2026-10-21'
+      quote: where we engage in profiling or automated decision-making as defined under applicable laws, you may request to opt-out of such profiling or automated decision-making
+    note: A limited disclosure. The policy says personal data passes through an ML/AI service (Cortex) and to AI service providers, and offers an opt-out from profiling or automated decision-making where the law applies. It is not a model card or an AI-specific transparency statement.

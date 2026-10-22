@@ -1,0 +1,710 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/rokt/main/json-schema/rokt-order-schema.json",
+  "title": "Order",
+  "x-generated": "2026-10-21",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/rokt-catalog-api-openapi.yml#/components/schemas/Order",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "readOnly": true
+    },
+    "remote_rid": {
+      "type": "string",
+      "maxLength": 48
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "readOnly": true
+    },
+    "shop": {
+      "$ref": "#/$defs/Shop"
+    },
+    "customer": {
+      "$ref": "#/$defs/Customer"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email address",
+      "maxLength": 254
+    },
+    "total_price": {
+      "type": "string",
+      "maxLength": 18
+    },
+    "currency": {
+      "type": "string",
+      "maxLength": 6
+    },
+    "name": {
+      "type": "string",
+      "maxLength": 256
+    },
+    "line_items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/LineItemRead"
+      },
+      "readOnly": true
+    },
+    "fulfillments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Fulfillment"
+      },
+      "readOnly": true
+    },
+    "billing_address": {
+      "description": "Billing address for the order, with the same fields as `Address`, or `null` when not provided."
+    },
+    "shipping_address": {
+      "description": "Shipping address for the order, with the same fields as `Address`, or `null` when not provided."
+    },
+    "shipping_lines": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ShippingRate"
+      },
+      "readOnly": true
+    },
+    "cancelled_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "refunds": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Refund"
+      },
+      "readOnly": true
+    },
+    "connected_supplier_order_numbers": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      },
+      "readOnly": true
+    },
+    "cancel_reason": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 14
+    },
+    "note_attributes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/OrderNoteAttribute"
+      }
+    },
+    "returns": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Return"
+      },
+      "readOnly": true
+    }
+  },
+  "required": [
+    "connected_supplier_order_numbers",
+    "created_at",
+    "currency",
+    "customer",
+    "email",
+    "fulfillments",
+    "id",
+    "line_items",
+    "name",
+    "note_attributes",
+    "refunds",
+    "remote_rid",
+    "returns",
+    "shipping_lines",
+    "shop",
+    "total_price"
+  ],
+  "$defs": {
+    "Customer": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true
+        },
+        "email": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "email",
+          "title": "Email address",
+          "maxLength": 403
+        },
+        "first_name": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 255
+        },
+        "last_name": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 256
+        },
+        "orders_count": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "maximum": 2147483647,
+          "minimum": -2147483648
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "Fulfillment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "order_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "shop": {
+          "$ref": "#/$defs/Shop"
+        },
+        "line_items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LineItemRead"
+          }
+        },
+        "service": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 258
+        },
+        "shipment_status": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 32
+        },
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 32
+        },
+        "tracking_company": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 257
+        },
+        "tracking_numbers": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string",
+            "maxLength": 128
+          }
+        },
+        "tracking_urls": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string",
+            "maxLength": 256
+          }
+        }
+      },
+      "required": [
+        "id",
+        "line_items",
+        "name",
+        "order_id",
+        "shop"
+      ]
+    },
+    "LineItemRead": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "variant_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "quantity": {
+          "type": "integer"
+        },
+        "fulfillable_quantity": {
+          "type": "integer"
+        },
+        "price": {
+          "type": "number",
+          "format": "double"
+        },
+        "requires_shipping": {
+          "type": "boolean"
+        },
+        "title": {
+          "type": "string"
+        },
+        "sku": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "fulfillable_quantity",
+        "id",
+        "price",
+        "quantity",
+        "variant_id"
+      ]
+    },
+    "OrderNoteAttribute": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "value"
+      ]
+    },
+    "Refund": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true
+        },
+        "order_id": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "object",
+          "additionalProperties": {},
+          "readOnly": true
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1025
+        },
+        "duties": {
+          "description": "Duties included in the refund, or `null` when none apply."
+        },
+        "restock": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "processed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "refund_line_items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RefundLineItem"
+          }
+        },
+        "shipping_refund_amount": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 128
+        },
+        "failed_to_create_refund_line_items": {
+          "type": "string",
+          "readOnly": true
+        }
+      },
+      "required": [
+        "amount",
+        "failed_to_create_refund_line_items",
+        "id",
+        "order_id",
+        "processed_at",
+        "refund_line_items"
+      ]
+    },
+    "RefundLineItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true
+        },
+        "line_item": {
+          "$ref": "#/$defs/LineItemRead"
+        },
+        "quantity": {
+          "type": "integer",
+          "maximum": 2147483647,
+          "minimum": -2147483648
+        },
+        "subtotal": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "decimal",
+          "pattern": "^-?\\d{0,10}(?:\\.\\d{0,2})?$"
+        }
+      },
+      "required": [
+        "id",
+        "line_item",
+        "quantity"
+      ]
+    },
+    "Return": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true
+        },
+        "order": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "return_line_items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ReturnLineItem"
+          }
+        },
+        "status": {
+          "$ref": "#/$defs/Status602Enum"
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 501
+        },
+        "total_return_line_items": {
+          "type": "integer",
+          "maximum": 32767,
+          "minimum": -32768,
+          "description": "The sum of all return line item quantities for the return."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "tracking": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ReverseDelivery"
+          }
+        },
+        "rma": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "\"Return merchandise authorization\" -- used as reference number for SK to SUP comms",
+          "maxLength": 501
+        }
+      },
+      "required": [
+        "created_at",
+        "id",
+        "order",
+        "return_line_items",
+        "total_return_line_items",
+        "tracking",
+        "updated_at"
+      ]
+    },
+    "ReturnLineItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true
+        },
+        "line_item_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "quantity": {
+          "type": "integer",
+          "maximum": 2147483647,
+          "minimum": -2147483648
+        },
+        "customer_note": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 300
+        },
+        "return_reason": {
+          "$ref": "#/$defs/ReturnReasonEnum"
+        },
+        "return_reason_note": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 255
+        }
+      },
+      "required": [
+        "id",
+        "line_item_id",
+        "quantity"
+      ]
+    },
+    "ReturnReasonEnum": {
+      "enum": [
+        "color",
+        "defective",
+        "not_as_described",
+        "other",
+        "size_too_large",
+        "size_too_small",
+        "style",
+        "unknown",
+        "unwanted",
+        "wrong_item"
+      ],
+      "type": "string",
+      "description": "* `color` - color\n* `defective` - defective\n* `not_as_described` - not_as_described\n* `other` - other\n* `size_too_large` - size_too_large\n* `size_too_small` - size_too_small\n* `style` - style\n* `unknown` - unknown\n* `unwanted` - unwanted\n* `wrong_item` - wrong_item"
+    },
+    "ReverseDelivery": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true
+        },
+        "carrier_name": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 100
+        },
+        "tracking_number": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 100
+        },
+        "tracking_url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri",
+          "maxLength": 200
+        },
+        "shipping_label_file_url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri",
+          "maxLength": 1279
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "ShippingRate": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number",
+          "format": "double"
+        },
+        "currency": {
+          "type": "string",
+          "default": "USD"
+        }
+      },
+      "required": [
+        "code",
+        "price",
+        "title"
+      ]
+    },
+    "Shop": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true
+        },
+        "email": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "readOnly": true
+        },
+        "phone": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 128
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 129
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 6144
+        },
+        "myshopify_domain": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "province": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 122
+        },
+        "country": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "domain": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 128
+        },
+        "display_domain": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "readOnly": true
+        },
+        "privacy_policy_url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri",
+          "maxLength": 500
+        },
+        "terms_of_service_url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri",
+          "maxLength": 500
+        }
+      },
+      "required": [
+        "country",
+        "display_domain",
+        "email",
+        "id",
+        "myshopify_domain",
+        "name"
+      ]
+    },
+    "Status602Enum": {
+      "enum": [
+        "canceled",
+        "closed",
+        "declined",
+        "open",
+        "requested"
+      ],
+      "type": "string",
+      "description": "* `canceled` - canceled\n* `closed` - closed\n* `declined` - declined\n* `open` - open\n* `requested` - requested"
+    }
+  }
+}

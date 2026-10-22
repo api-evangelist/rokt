@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/rokt/main/json-schema/rokt-offers-request-schema.json",
+  "title": "OffersRequest",
+  "x-generated": "2026-10-21",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/rokt-session-api-openapi.yml#/components/schemas/OffersRequest",
+  "type": "object",
+  "required": [
+    "channel",
+    "page"
+  ],
+  "properties": {
+    "channel": {
+      "$ref": "#/$defs/Channel"
+    },
+    "page": {
+      "$ref": "#/$defs/Page"
+    },
+    "customer": {
+      "$ref": "#/$defs/Customer"
+    },
+    "transaction": {
+      "$ref": "#/$defs/Transaction"
+    },
+    "payment": {
+      "$ref": "#/$defs/Payment"
+    },
+    "device": {
+      "$ref": "#/$defs/Device"
+    },
+    "attributes": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Free-form string map for partner-specific signals that do not fit a\ntyped object.\n\nSend only values you own. Geo, demographics, device type and OS,\npayment method, and modeled signals are derived by Rokt and will be\noverwritten if sent.\n"
+    }
+  },
+  "$defs": {
+    "Channel": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "description": "Identifies the integration type. Server-to-server callers send `s2s`.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "s2s"
+          ]
+        }
+      }
+    },
+    "Customer": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "gender": {
+          "type": "string"
+        },
+        "postal_code": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string",
+          "description": "Language code, e.g. `en`."
+        }
+      }
+    },
+    "Device": {
+      "type": "object",
+      "properties": {
+        "user_agent": {
+          "type": "string",
+          "description": "User agent of the client device or application."
+        }
+      }
+    },
+    "Page": {
+      "type": "object",
+      "required": [
+        "page_identifier"
+      ],
+      "properties": {
+        "page_identifier": {
+          "type": "string",
+          "description": "Differentiates the views or pages in your journey."
+        },
+        "page_variation_code": {
+          "type": "string",
+          "description": "Optional variation code for the page."
+        }
+      }
+    },
+    "Payment": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Payment method type, e.g. `card`."
+        }
+      }
+    },
+    "Transaction": {
+      "type": "object",
+      "properties": {
+        "transaction_value": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string",
+          "description": "ISO 4217 currency code, e.g. `USD`."
+        },
+        "confirmation_ref": {
+          "type": "string",
+          "description": "Your order or confirmation reference."
+        }
+      }
+    }
+  }
+}

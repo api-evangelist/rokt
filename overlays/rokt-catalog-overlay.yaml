@@ -1,0 +1,225 @@
+overlay: 1.0.0
+info:
+  title: Rokt Rokt Catalog API - API Evangelist overlay
+  version: 1.0.0
+extends: openapi/rokt-catalog-api-openapi.yml
+actions:
+- target: $.info
+  update:
+    x-api-evangelist:
+      provider: rokt
+      profiled: '2026-10-21'
+      llms: llms/rokt-llms.txt
+      mcp: mcp/rokt-mcp.yml
+- target: $.paths['/csv/download_shopkeep_line_items/'].get
+  update:
+    x-mcp-tool: rokt_catalog_csv_download_shopkeep_line_items_retrieve
+    x-agent-safety: read
+- target: $.paths['/csv/download_unfulfilled_supplier_line_items/'].get
+  update:
+    x-mcp-tool: rokt_catalog_csv_download_unfulfilled_supplier_line_items_retrie
+    x-agent-safety: read
+- target: $.paths['/csv/product/template/'].get
+  update:
+    x-mcp-tool: rokt_catalog_csv_product_template_retrieve
+    x-agent-safety: read
+- target: $.paths['/fulfillments/'].get
+  update:
+    x-mcp-tool: rokt_catalog_fulfillments_list
+    x-agent-safety: read
+- target: $.paths['/fulfillments/'].post
+  update:
+    x-mcp-tool: rokt_catalog_fulfillments_create
+    x-agent-safety: write
+- target: $.paths['/fulfillments/{id}/'].get
+  update:
+    x-mcp-tool: rokt_catalog_fulfillments_retrieve
+    x-agent-safety: read
+- target: $.paths['/fulfillments/{id}/'].put
+  update:
+    x-mcp-tool: rokt_catalog_fulfillments_update
+    x-agent-safety: write
+- target: $.paths['/fulfillments/{id}/'].patch
+  update:
+    x-mcp-tool: rokt_catalog_fulfillments_partial_update
+    x-agent-safety: write
+- target: $.paths['/markets/prices/import/'].post
+  update:
+    x-mcp-tool: rokt_catalog_markets_prices_import_create
+    x-agent-safety: write
+- target: $.paths['/max-shipping-rates/'].post
+  update:
+    x-mcp-tool: rokt_catalog_max_shipping_rates_create
+    x-agent-safety: write
+- target: $.paths['/orders/'].get
+  update:
+    x-mcp-tool: rokt_catalog_orders_list
+    x-agent-safety: read
+- target: $.paths['/orders/'].post
+  update:
+    x-mcp-tool: rokt_catalog_orders_create
+    x-agent-safety: write
+- target: $.paths['/orders/{id}/'].get
+  update:
+    x-mcp-tool: rokt_catalog_orders_retrieve
+    x-agent-safety: read
+- target: $.paths['/orders/{id}/cancel/'].post
+  update:
+    x-mcp-tool: rokt_catalog_orders_cancel_create
+    x-agent-safety: write
+- target: $.paths['/orders/create_or_get/'].post
+  update:
+    x-mcp-tool: rokt_catalog_orders_create_or_get_create
+    x-agent-safety: write
+- target: $.paths['/orders/v1/create-and-charge/'].post
+  update:
+    x-mcp-tool: rokt_catalog_orders_v1_create_and_charge_create
+    x-agent-safety: write
+- target: $.paths['/orders/v1/initialize-order/'].post
+  update:
+    x-mcp-tool: rokt_catalog_orders_v1_initialize_order_create
+    x-agent-safety: write
+- target: $.paths['/products/'].get
+  update:
+    x-mcp-tool: rokt_catalog_products_list
+    x-agent-safety: read
+- target: $.paths['/products/'].post
+  update:
+    x-mcp-tool: rokt_catalog_products_create
+    x-agent-safety: write
+- target: $.paths['/products/{id}/'].get
+  update:
+    x-mcp-tool: rokt_catalog_products_retrieve
+    x-agent-safety: read
+- target: $.paths['/products/{id}/'].put
+  update:
+    x-mcp-tool: rokt_catalog_products_update
+    x-agent-safety: write
+- target: $.paths['/products/{id}/'].patch
+  update:
+    x-mcp-tool: rokt_catalog_products_partial_update
+    x-agent-safety: write
+- target: $.paths['/products/{id}/'].delete
+  update:
+    x-mcp-tool: rokt_catalog_products_destroy
+    x-agent-safety: destructive
+- target: $.paths['/products/{id}/reorder_variants/'].post
+  update:
+    x-mcp-tool: rokt_catalog_products_reorder_variants_create
+    x-agent-safety: write
+- target: $.paths['/products/{id}/resync/'].post
+  update:
+    x-mcp-tool: rokt_catalog_products_resync_create
+    x-agent-safety: write
+- target: $.paths['/products/upsell_products/'].get
+  update:
+    x-mcp-tool: rokt_catalog_products_upsell_products_list
+    x-agent-safety: read
+- target: $.paths['/refunds/'].get
+  update:
+    x-mcp-tool: rokt_catalog_refunds_list
+    x-agent-safety: read
+- target: $.paths['/refunds/'].post
+  update:
+    x-mcp-tool: rokt_catalog_refunds_create
+    x-agent-safety: write
+- target: $.paths['/refunds/{id}/'].get
+  update:
+    x-mcp-tool: rokt_catalog_refunds_retrieve
+    x-agent-safety: read
+- target: $.paths['/returns/'].get
+  update:
+    x-mcp-tool: rokt_catalog_returns_list
+    x-agent-safety: read
+- target: $.paths['/returns/'].post
+  update:
+    x-mcp-tool: rokt_catalog_returns_create
+    x-agent-safety: write
+- target: $.paths['/returns/{id}/'].get
+  update:
+    x-mcp-tool: rokt_catalog_returns_retrieve
+    x-agent-safety: read
+- target: $.paths['/returns/{id}/close/'].post
+  update:
+    x-mcp-tool: rokt_catalog_returns_close_create
+    x-agent-safety: write
+- target: $.paths['/returns/{id}/update_tracking/'].post
+  update:
+    x-mcp-tool: rokt_catalog_returns_update_tracking_create
+    x-agent-safety: write
+- target: $.paths['/shipping-rates/'].post
+  update:
+    x-mcp-tool: rokt_catalog_shipping_rates_create
+    x-agent-safety: write
+- target: $.paths['/shops/'].get
+  update:
+    x-mcp-tool: rokt_catalog_shops_list
+    x-agent-safety: read
+- target: $.paths['/shops/'].post
+  update:
+    x-mcp-tool: rokt_catalog_shops_create
+    x-agent-safety: write
+- target: $.paths['/shops/{id}/'].get
+  update:
+    x-mcp-tool: rokt_catalog_shops_retrieve
+    x-agent-safety: read
+- target: $.paths['/tax-and-shipping/calculate/'].post
+  update:
+    x-mcp-tool: rokt_catalog_tax_and_shipping_calculate_create
+    x-agent-safety: write
+- target: $.paths['/tax-and-shipping/v1/calculate/'].post
+  update:
+    x-mcp-tool: rokt_catalog_tax_and_shipping_v1_calculate_create
+    x-agent-safety: write
+- target: $.paths['/tax/calculate/'].post
+  update:
+    x-mcp-tool: rokt_catalog_tax_calculate_create
+    x-agent-safety: write
+- target: $.paths['/variants/'].get
+  update:
+    x-mcp-tool: rokt_catalog_variants_list
+    x-agent-safety: read
+- target: $.paths['/variants/'].post
+  update:
+    x-mcp-tool: rokt_catalog_variants_create
+    x-agent-safety: write
+- target: $.paths['/variants/{id}/'].get
+  update:
+    x-mcp-tool: rokt_catalog_variants_retrieve
+    x-agent-safety: read
+- target: $.paths['/variants/{id}/'].put
+  update:
+    x-mcp-tool: rokt_catalog_variants_update
+    x-agent-safety: write
+- target: $.paths['/variants/{id}/'].patch
+  update:
+    x-mcp-tool: rokt_catalog_variants_partial_update
+    x-agent-safety: write
+- target: $.paths['/variants/{id}/'].delete
+  update:
+    x-mcp-tool: rokt_catalog_variants_destroy
+    x-agent-safety: destructive
+- target: $.paths['/webhooks/'].get
+  update:
+    x-mcp-tool: rokt_catalog_webhooks_list
+    x-agent-safety: read
+- target: $.paths['/webhooks/'].post
+  update:
+    x-mcp-tool: rokt_catalog_webhooks_create
+    x-agent-safety: write
+- target: $.paths['/webhooks/{id}/'].get
+  update:
+    x-mcp-tool: rokt_catalog_webhooks_retrieve
+    x-agent-safety: read
+- target: $.paths['/webhooks/{id}/'].put
+  update:
+    x-mcp-tool: rokt_catalog_webhooks_update
+    x-agent-safety: write
+- target: $.paths['/webhooks/{id}/'].patch
+  update:
+    x-mcp-tool: rokt_catalog_webhooks_partial_update
+    x-agent-safety: write
+- target: $.paths['/webhooks/{id}/'].delete
+  update:
+    x-mcp-tool: rokt_catalog_webhooks_destroy
+    x-agent-safety: destructive
