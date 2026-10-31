@@ -64,27 +64,173 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Rokt is an eCommerce technology platform that uses AI and machine learning to serve personalized non-endemic offers and ads during transaction moments. The platform powers billions of ecommerce transactions annually for brands including Live Nation, PayPal, Uber, and HelloFresh.
+Rokt is an eCommerce technology platform that uses AI and machine learning to serve personalized non-endemic offers and ads during transaction moments. APIs cover ecommerce placement integrations, conversion event tracking, reporting and analytics, custom audience management, and data governance.
 
-## APIs
+**Areas:** E-Commerce · Advertising · Transaction Moment · Personalization · Offers · Analytics · Reporting
 
-- **Query API** — Reporting and analytics for account and campaign performance data
-- **Event API** — Conversion and attribution event ingestion
-- **Cart API** — Ecommerce placement integration during checkout and confirmation moments
-- **Custom Audience Import API** — Audience segment management for targeted offer delivery
-- **Data Deletion API** — Privacy and data governance compliance
-- **Nurture Unsubscribe API** — Opt-out management for nurture campaigns
-- **Partnerships API** — Third-party integrations (mParticle and others)
+## Rokt on APIs.io
 
-## Authentication
+Everything profiled for Rokt is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/rokt/](https://apis.io/providers/rokt/)** — or go straight to one of the APIs or properties below.
 
-All Rokt APIs use OAuth 2.0 Client Credentials. Obtain App ID and App Secret from One Platform (my.rokt.com) and exchange them for a Bearer token at `https://api.rokt.com/auth/oauth2/token`. Tokens expire after one hour.
+### APIs (9)
 
-## Resources
+- [Rokt Query API](https://apis.io/apis/rokt/rokt-query-api/) — Comprehensive reporting API for querying account and campaign performance data with flexible filtering, metrics selection, and date range specification.
+- [Rokt Event API](https://apis.io/apis/rokt/rokt-event-api/) — Enables sending conversion data and client events to Rokt to close the attribution loop for campaign performance tracking.
+- [Rokt Cart API](https://apis.io/apis/rokt/rokt-cart-api/) — Supports integration of Rokt into ecommerce transaction flows, enabling placement of personalized offers during the checkout and confirmation moment.
+- [Rokt Custom Audience Import API](https://apis.io/apis/rokt/rokt-custom-audience-import-api/) — Allows importing custom audience segments into Rokt for targeted offer delivery and campaign personalization.
+- [Rokt Data Deletion API](https://apis.io/apis/rokt/rokt-data-deletion-api/) — Manages data removal requests within Rokt systems to support privacy compliance and data governance requirements.
+- [Rokt Nurture Unsubscribe API](https://apis.io/apis/rokt/rokt-nurture-unsubscribe-api/) — Handles unsubscribe management for Rokt nurture campaigns, enabling partners to honor customer opt-outs.
+- [Rokt Partnerships API](https://apis.io/apis/rokt/rokt-partnerships-api/) — Partner-facing REST API (preview) for white-label onboarding of merchant accounts onto the Rokt network: register merchants, configure marketplace and offer…
+- [Rokt Catalog API](https://apis.io/apis/rokt/rokt-catalog-api/) — REST Admin API for the Rokt Catalog (formerly Canal) product: manage products, variants, orders, fulfillments, refunds and returns between brands and…
+- [Rokt Session API](https://apis.io/apis/rokt/rokt-session-api/) — Server-to-server API for requesting Rokt offers and reporting the events that follow, replacing client-side SDK placement for partners who render offers…
 
-- [Developer Documentation](https://docs.rokt.com)
-- [API Reference](https://docs.rokt.com/developers/api-reference/overview/)
-- [OpenAPI Specifications](https://docs.rokt.com/openapi/)
-- [Integration Guides](https://docs.rokt.com/developers/integration-guides/overview/)
-- [GitHub Organization](https://github.com/ROKT)
-- [Blog](https://www.rokt.com/blog/)
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### Agentic access (1)
+
+Which operations an agent can call, which act, and which need a human in the loop.
+
+- [Rokt Agentic Access](https://apis.io/agentic-access/rokt/rokt-agentic-access/)
+
+#### JSON Schema (20)
+
+The data models the API reads and writes.
+
+- [AccountExternal](https://apis.io/schemas/rokt/rokt-account-external/)
+- [EventsRequest](https://apis.io/schemas/rokt/rokt-events-request/)
+- [EventsResponse](https://apis.io/schemas/rokt/rokt-events-response/)
+- [ExternalProduct](https://apis.io/schemas/rokt/rokt-external-product/)
+- [MarketplaceControlsResponse](https://apis.io/schemas/rokt/rokt-marketplace-controls-response/)
+- [OffersRequest](https://apis.io/schemas/rokt/rokt-offers-request/)
+- [OffersResponse](https://apis.io/schemas/rokt/rokt-offers-response/)
+- [OperationResponse](https://apis.io/schemas/rokt/rokt-operation-response/)
+- [Order](https://apis.io/schemas/rokt/rokt-order/)
+- [PartnershipLayoutEditRequest](https://apis.io/schemas/rokt/rokt-partnership-layout-edit-request/)
+- [PatchedProduct](https://apis.io/schemas/rokt/rokt-patched-product/)
+- [PatchedVariant](https://apis.io/schemas/rokt/rokt-patched-variant/)
+- [Product](https://apis.io/schemas/rokt/rokt-product/)
+- [RegisterPartnershipRequest](https://apis.io/schemas/rokt/rokt-register-partnership-request/)
+- [ReportingMetadataExternal](https://apis.io/schemas/rokt/rokt-reporting-metadata-external/)
+- [ReportingRequestExternal](https://apis.io/schemas/rokt/rokt-reporting-request-external/)
+- [ReportingResponseExternal](https://apis.io/schemas/rokt/rokt-reporting-response-external/)
+- [SwitchPartnershipPageLayoutRequest](https://apis.io/schemas/rokt/rokt-switch-partnership-page-layout-request/)
+- [SwitchPartnershipPageLayoutResponse](https://apis.io/schemas/rokt/rokt-switch-partnership-page-layout-response/)
+- [Variant](https://apis.io/schemas/rokt/rokt-variant/)
+
+#### JSON-LD (1)
+
+Linked-data contexts for the provider's vocabulary.
+
+- [Rokt Context](https://apis.io/jsonld/rokt/rokt-context/)
+
+#### Overlays (4)
+
+OpenAPI overlays, including conversational phrasing for each operation.
+
+- [Rokt Catalog Overlay](https://apis.io/overlays/rokt/rokt-catalog-overlay/)
+- [Rokt Partnerships Overlay](https://apis.io/overlays/rokt/rokt-partnerships-overlay/)
+- [Rokt Query Overlay](https://apis.io/overlays/rokt/rokt-query-overlay/)
+- [Rokt Session Overlay](https://apis.io/overlays/rokt/rokt-session-overlay/)
+
+#### Governance rules (1)
+
+Spectral rulesets for the provider's contracts.
+
+- [Rokt API Rules](https://apis.io/rules/rokt/rokt-rules/)
+
+#### Security (3)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Rokt Authentication](https://apis.io/security/rokt/rokt-authentication/)
+- [Rokt Domain Security](https://apis.io/security/rokt/rokt-domain-security/)
+- [Rokt Vulnerability Disclosure](https://apis.io/security/rokt/rokt-vulnerability-disclosure/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Rokt Plans Pricing](https://apis.io/plans/rokt/rokt-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Rokt Rate Limits](https://apis.io/rate-limits/rokt/rokt-rate-limits/)
+
+#### FinOps (1)
+
+What the API costs to run, by operation.
+
+- [Rokt Finops](https://apis.io/finops/rokt/rokt-finops/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://www.rokt.com/)
+- [Documentation](https://docs.rokt.com/)
+- [Getting started](https://docs.rokt.com/developer-reference/apis/partnerships-api/quickstart/)
+- [API reference](https://docs.rokt.com/developer-reference/)
+- [Pricing](https://www.rokt.com/products/product-overview)
+- [Support](https://www.rokt.com/contact-us)
+- [Changelog](https://docs.rokt.com/developer-reference/sdks/release-notes/)
+- [Blog](https://www.rokt.com/blog)
+- [Security](https://www.rokt.com/rokt-mparticle/security)
+- [Terms of service](https://www.rokt.com/policies/terms-for-advertisers)
+- [Privacy policy](https://www.rokt.com/policies/privacy-policy)
+
+## API Evangelist rating
+
+**Kin Score 63.5** — strong · rubric 0.24.0 · scored 2026-10-21
+
+| Facet | Score |
+|---|---|
+| Discoverability | 80.4 |
+| Contract quality | 59.8 |
+| Contract governance | 79.1 |
+| Operational transparency | 47.4 |
+| Developer ergonomics | 68.3 |
+| Access clarity | 44.7 |
+
+**Agent readiness 53.8** — agent-native
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | unknown |
+| Reversibility Documented | — |
+| MCP Server | documented (partial credit) |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | verified |
+| Error Semantics | verified |
+| OpenAPI Examples | partial |
+| Rate Limit Signal | verified |
+| Event Surface Described | — |
+| Agent Skills | unknown |
+| Well Known Catalog | yes |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | yes |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+
+**Regulatory alignment 30.4** — Horizontal (data, software, accessibility, platform)
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/rokt/](https://apis.io/providers/rokt/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Rokt: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/rokt/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
